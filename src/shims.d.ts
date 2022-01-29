@@ -1,6 +1,6 @@
-declare interface Window {
-  // extend the window
-}
+// extend the window
+// declare interface Window {}
+
 
 // with vite-plugin-md, markdowns can be treat as Vue components
 declare module '*.md' {

@@ -1,11 +1,11 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import {useUserStore} from "~/stores/user";
+import { useUserStore } from "~/stores/user";
 
-export const useGlobalStore = defineStore('global', ()=>{
+export const useGlobalStore = defineStore('global', () => {
     const backendUrl = ref('http://shuwashuwa.kinami.cc:8848');
     const token = ref('');
 
-    const isTokenValid = computed(()=>{
+    const isTokenValid = computed(() => {
         return token.value !== '';
     });
 

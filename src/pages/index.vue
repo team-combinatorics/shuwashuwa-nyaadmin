@@ -19,7 +19,11 @@ const { t } = useI18n()
       <carbon-campsite class="inline-block" />
     </p>
     <p>
-      <a rel="noreferrer" href="https://github.com/antfu/vitesse" target="_blank">
+      <a
+        rel="noreferrer"
+        href="https://github.com/antfu/vitesse"
+        target="_blank"
+      >
         Vitesse
       </a>
     </p>
@@ -44,7 +48,10 @@ const { t } = useI18n()
       outline="none active:none"
       @keydown.enter="go"
     >
-    <label class="hidden" for="input">{{ t('intro.whats-your-name') }}</label>
+    <label
+      class="hidden"
+      for="input"
+    >{{ t('intro.whats-your-name') }}</label>
 
     <div>
       <button

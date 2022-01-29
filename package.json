@@ -22,8 +22,6 @@
     "@types/markdown-it-link-attributes": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^5.10.1",
     "@typescript-eslint/parser": "^5.10.1",
-    "@vicons/ionicons5": "^0.11.0",
-    "@vicons/material": "^0.11.0",
     "@vitejs/plugin-vue": "^2.1.0",
     "@vue/test-utils": "^2.0.0-rc.18",
     "critters": "^0.0.16",
