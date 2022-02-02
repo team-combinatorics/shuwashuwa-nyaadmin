@@ -1,8 +1,7 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
-import { useUserStore } from "~/stores/user";
 
 export const useGlobalStore = defineStore('global', () => {
-    const backendUrl = ref('http://shuwashuwa.kinami.cc:8848');
+    const backendUrl = ref(import.meta.env.BASE_URL);
     const token = ref('');
 
     const isTokenValid = computed(() => {
@@ -17,14 +16,19 @@ export const useGlobalStore = defineStore('global', () => {
         token.value = tok;
     }
 
+    function invalidateToken(){
+        setToken('');
+    }
+
     return {
         backendUrl,
         setBackendUrl,
         token,
         setToken,
         isTokenValid,
+        invalidateToken
     };
 })
 
 if (import.meta.hot)
-    import.meta.hot.accept(acceptHMRUpdate(useUserStore, import.meta.hot))
+    import.meta.hot.accept(acceptHMRUpdate(useGlobalStore, import.meta.hot))

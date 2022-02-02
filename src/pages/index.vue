@@ -1,16 +1,4 @@
 <script setup lang="ts">
-import { useUserStore } from '~/stores/user'
-
-const user = useUserStore()
-const name = ref(user.savedName)
-
-const router = useRouter()
-const go = () => {
-  if (name.value)
-    router.push(`/hi/${encodeURIComponent(name.value)}`)
-}
-
-const { t } = useI18n()
 </script>
 
 <template>
@@ -28,7 +16,7 @@ const { t } = useI18n()
       </a>
     </p>
     <p>
-      <em class="text-sm opacity-75">{{ t('intro.desc') }}</em>
+      <em class="text-sm opacity-75">{{ 'intro.desc' }}</em>
     </p>
 
     <div class="py-4" />
@@ -36,8 +24,8 @@ const { t } = useI18n()
     <input
       id="input"
       v-model="name"
-      :placeholder="t('intro.whats-your-name')"
-      :aria-label="t('intro.whats-your-name')"
+      placeholder="t('intro.whats-your-name')"
+      aria-label="t('intro.whats-your-name')"
       type="text"
       autocomplete="false"
       p="x-4 y-2"
@@ -46,20 +34,17 @@ const { t } = useI18n()
       bg="transparent"
       border="~ rounded gray-200 dark:gray-700"
       outline="none active:none"
-      @keydown.enter="go"
     >
     <label
       class="hidden"
       for="input"
-    >{{ t('intro.whats-your-name') }}</label>
+    >{{ 'intro.whats-your-name' }}</label>
 
     <div>
       <button
         class="m-3 text-sm btn"
-        :disabled="!name"
-        @click="go"
       >
-        {{ t('button.go') }}
+        {{ 'button.go' }}
       </button>
     </div>
   </div>

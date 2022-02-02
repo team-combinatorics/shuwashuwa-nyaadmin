@@ -1,11 +1,11 @@
 import { createPinia, setActivePinia } from 'pinia'
 
-import { login } from '../src/api/login'
-import { deleteCache, getCacheSize } from '../src/api/cache'
-
 beforeEach(() => {
   setActivePinia(createPinia())
 })
+
+import { login } from '../src/api/login'
+import { deleteCache, getCacheSize } from '../src/api/cache'
 
 it('get cache size', async() => {
   await login('shuwashuwa', 'Tsugudaisuki')

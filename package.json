@@ -19,6 +19,7 @@
   },
   "devDependencies": {
     "@antfu/eslint-config": "^0.16.0",
+    "@iconify-json/carbon": "^1.0.14",
     "@types/markdown-it-link-attributes": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^5.10.1",
     "@typescript-eslint/parser": "^5.10.1",
