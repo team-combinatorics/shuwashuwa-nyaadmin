@@ -10,7 +10,6 @@
     "typecheck": "vue-tsc --noEmit"
   },
   "dependencies": {
-    "@vueuse/core": "^7.5.4",
     "@vueuse/head": "^0.7.5",
     "axios": "^0.25.0",
     "pinia": "^2.0.9",
@@ -23,8 +22,10 @@
     "@types/markdown-it-link-attributes": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^5.10.1",
     "@typescript-eslint/parser": "^5.10.1",
+    "@vicons/ionicons5": "^0.11.0",
     "@vitejs/plugin-vue": "^2.1.0",
     "@vue/test-utils": "^2.0.0-rc.18",
+    "@vueuse/core": "^7.5.4",
     "critters": "^0.0.16",
     "cross-env": "^7.0.3",
     "eslint": "^8.7.0",

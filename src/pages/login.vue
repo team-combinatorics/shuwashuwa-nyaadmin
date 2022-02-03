@@ -1,153 +1,159 @@
 <script setup lang="ts">
-  import { NAvatar, NCard, NForm, NFormItem, NButton, NInput } from 'naive-ui';
-  import { usePreferredDark } from '@vueuse/core';
+import { NAvatar, NCard, NForm, NFormItem, NButton, NInput, NRadioButton, NRadioGroup, NIcon } from 'naive-ui';
 
-  const isDark = usePreferredDark();
+import { SettingsOutline, ChevronBackOutline } from '@vicons/ionicons5';
+
+import { useThemeVars } from 'naive-ui';
+const themeVars = useThemeVars()
+
+import { usePreferredDark } from '@vueuse/core';
+import WavesBackground from '~/components/Waves.vue';
+const prefersDark = usePreferredDark();
+
+const showOptions = ref(true);
+
+const toggleShowOptions = () => {
+  showOptions.value = !showOptions.value;
+}
+
+import { useGlobalStore } from '~/stores/global';
+const { backendUrl, setBackendUrl } = useGlobalStore();
+
+const prodUrl = import.meta.env.VITE_PROD_URL;
+
+const devUrl = import.meta.env.VITE_DEV_URL;
+
+const setDevEnv = () => {
+  console.log(devUrl);
+  setBackendUrl(devUrl);
+  console.log(backendUrl);
+}
+
+const setProdEnv = () => {
+  console.log(prodUrl);
+  setBackendUrl(prodUrl);
+  console.log(backendUrl);
+}
+
 </script>
 
 <template>
-  <div class="h-100vh flex-col justify-center items-center">
-    <n-card class="login-card">
-      <img
-        class="logo"
-        :src="isDark? '/shuwashuwa-light.png' : '/shuwashuwa-dark.png'"
-        alt="Shuwashuwa"
-      >
-      <div class="login-form">
-        <n-input
-          placeholder="用户名"
-          type="text"
-          class="my-2.5"
-        />
-        <n-input
-          placeholder="密码"
-          type="password"
-          class="my-2.5"
-        />
-        <n-button
-          style="width: 100%"
-          type="primary"
-          class="mt-2.5"
+  <!-- center everything -->
+  <div>
+    <div
+      class="h-100vh flex justify-center items-center"
+    >
+      <n-card class="login-card">
+        <img
+          class="logo"
+          :src="prefersDark? '/shuwashuwa-dark.png' : '/shuwashuwa-light.png'"
+          alt="Shuwashuwa"
         >
-          登录
-        </n-button>
-      </div>
-    </n-card>
 
-    <!-- Background Animation -->
-    <div class="overflow-hidden">
-      <svg
-        class="waves"
-        xmlns="http://www.w3.org/2000/svg"
-        xmlns:xlink="http://www.w3.org/1999/xlink"
-        viewBox="0 24 150 28"
-        preserveAspectRatio="none"
-        shape-rendering="auto"
-      >
-        <defs>
-          <path
-            id="gentle-wave"
-            d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z"
+        <n-button
+          strong
+          secondary
+          circle
+          type="primary"
+          @click="toggleShowOptions"
+          class="options-button"
+        >
+          <n-icon>
+            <chevron-back-outline v-if="showOptions" />
+            <settings-outline v-else />
+          </n-icon>
+        </n-button>
+    
+        <form
+          class="flex flex-col justify-center items-center"
+          v-if="!showOptions"
+        >
+          <n-input
+            placeholder="用户名"
+            type="text"
+            class="my-2.5 text-center"
           />
-        </defs>
-        <g class="parallax">
-          <use
-            xlink:href="#gentle-wave"
-            x="48"
-            y="0"
-            fill="rgba(255,255,255,0.7)"
+          <n-input
+            placeholder="密码"
+            type="password"
+            class="my-2.5 text-center"
           />
-          <use
-            xlink:href="#gentle-wave"
-            x="48"
-            y="3"
-            fill="rgba(255,255,255,0.5)"
+          <n-button
+            style="width: 100%"
+            type="primary"
+            class="mt-2.5"
+          >
+            登录
+          </n-button>
+        </form>
+
+        <div
+          class="flex flex-col justify-center items-center"
+          v-else
+        >
+          <n-radio-group
+            name="envselector"
+            class="my-2.5 text-center w-full"
+          >
+            <n-radio-button
+              value="production"
+            >
+              生产环境
+            </n-radio-button>
+            <n-radio-button
+              value="development"
+              :checked="backendUrl.value === devUrl"
+              @click="setDevEnv"
+            >
+              测试环境
+            </n-radio-button>
+            <n-radio-button
+              value="custom"
+            >
+              自定义
+            </n-radio-button>
+          </n-radio-group>
+
+          <n-input
+            placeholder="自定义域名"
+            type="text"
+            class="my-2.5 text-center input-custom"
           />
-          <use
-            xlink:href="#gentle-wave"
-            x="48"
-            y="5"
-            fill="rgba(255,255,255,0.3)"
-          />
-          <use
-            xlink:href="#gentle-wave"
-            x="48"
-            y="7"
-            fill="#fff"
-          />
-        </g>
-      </svg>
+        </div>
+      </n-card>
     </div>
+    <waves-background
+      :color="themeVars.primaryColor"
+      class="w-100vw"
+    />
   </div>
 </template>
 
 <style scoped>
-  .login-card {
-    @apply m-auto;
-    width: fit-content;
-    height: fit-content;
-    overflow: visible;
-  }
-
-  .login-form {
-    @apply flex-col justify-center items-center;
-  }
-
-  .logo {
-    @apply relative m-auto;
-    top: -70px;  /* 20px padding */
-    max-width: 100px;
-  }
-
-  .waves {
-  position:absolute;
-  bottom: 0px;
-  width: 100%;
-  margin-bottom:-7px; /*Fix for safari gap*/
-  min-height:100px;
-  max-height:150px;
+.login-card {
+  @apply m-auto;
+  width: 300px;
+  overflow: visible;
 }
 
-.parallax > use {
-  animation: move-forever 25s cubic-bezier(.55,.5,.45,.5)     infinite;
-}
-.parallax > use:nth-child(1) {
-  animation-delay: -2s;
-  animation-duration: 7s;
-}
-.parallax > use:nth-child(2) {
-  animation-delay: -3s;
-  animation-duration: 10s;
-}
-.parallax > use:nth-child(3) {
-  animation-delay: -4s;
-  animation-duration: 13s;
-}
-.parallax > use:nth-child(4) {
-  animation-delay: -5s;
-  animation-duration: 20s;
-}
-@keyframes move-forever {
-  0% {
-   transform: translate3d(-90px,0,0);
-  }
-  100% { 
-    transform: translate3d(85px,0,0);
-  }
+.login-form {
+  @apply flex flex-col justify-center items-center;
 }
 
-/*Shrinking for mobile*/
-@media (max-width: 768px) {
-  .waves {
-    height:40px;
-    min-height:40px;
-  }
-  .content {
-    height:30vh;
-  }
-  h1 {
-    font-size:24px;
-  }
+.logo {
+  @apply relative mx-auto flex-none;
+  top: -70px; /* 20px padding */
+  max-width: 100px;
+  margin-bottom: -50px;
 }
 
+.options-button {
+  @apply relative m-0 flex-none;
+  top: -55px;
+  margin-bottom: -55px;
+}
+
+.input-custom {
+  max-width: 242px;
+}
 </style>

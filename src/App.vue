@@ -12,13 +12,13 @@ useHead({
 import { usePreferredDark } from '@vueuse/core'
 import { NConfigProvider, darkTheme } from 'naive-ui'
 
-const theme = usePreferredDark() ? darkTheme : null
+const prefersDark = usePreferredDark()
 
 </script>
 
 <template>
   <n-config-provider
-    :theme="theme"
+    :theme="prefersDark ? darkTheme : null"
   >
     <router-view />
   </n-config-provider>

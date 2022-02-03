@@ -1,8 +1,9 @@
 import { acceptHMRUpdate, defineStore } from 'pinia';
+import { Ref } from 'vue';
 
 export const useGlobalStore = defineStore('global', () => {
-    const backendUrl = ref(import.meta.env.BASE_URL);
-    const token = ref('');
+    const backendUrl: Ref = ref(import.meta.env.BASE_URL);
+    const token: Ref = ref('');
 
     const isTokenValid = computed(() => {
         return token.value !== '';

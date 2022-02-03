@@ -3,17 +3,20 @@
 // auto-detect dark theme support
 import { usePreferredDark } from '@vueuse/core'
 import { NConfigProvider, darkTheme } from 'naive-ui'
+const prefersDark = usePreferredDark()
 
-const theme = usePreferredDark() ? darkTheme : undefined
+import { NLayout } from 'naive-ui';
 
 </script>
 
 <template>
-  <n-config-provider
-    :theme="theme"
-  >
-    <main class="px-4 py-10 text-center text-gray-700 dark:text-gray-200">
+  <n-config-provider :theme="prefersDark ? darkTheme : null">
+    <n-layout class="default-layout">
       <router-view />
-    </main>
+    </n-layout>
+
+    <div class="shadow-meta">
+      <!-- Layout: Default -->
+    </div>
   </n-config-provider>
 </template>
