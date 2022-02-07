@@ -2,34 +2,40 @@ import { acceptHMRUpdate, defineStore } from 'pinia';
 import { Ref } from 'vue';
 
 export const useGlobalStore = defineStore('global', () => {
-    const backendUrl: Ref = ref(import.meta.env.BASE_URL);
-    const token: Ref = ref('');
+    // global consts
+    const prodUrl = import.meta.env.VITE_PROD_URL as string;
+    const devUrl = import.meta.env.VITE_DEV_URL as string;
 
-    const isTokenValid = computed(() => {
-        return token.value !== '';
-    });
+    // make it persistant
+    const backendUrl: Ref<String> = useStorage('BACKENDURL', import.meta.env.BASE_URL);
+    const env = useStorage('ENV', 'custom') as Ref<"custom" | "prod" | "dev">;
 
     function setBackendUrl(url: string) {
+        console.log(`set backend url to ${url}`);
         backendUrl.value = url;
+        env.value = "custom";
     }
 
-    function setToken(tok: string) {
-        token.value = tok;
+    function setProdUrl(){
+        console.log(`set backend url to ${prodUrl}`);
+        backendUrl.value = prodUrl;
+        env.value = "prod";
     }
 
-    function invalidateToken(){
-        setToken('');
+    function setDevUrl(){
+        console.log(`set backend url to ${devUrl}`);
+        backendUrl.value = devUrl;
+        env.value = "dev";
     }
 
     return {
+        env,
         backendUrl,
         setBackendUrl,
-        token,
-        setToken,
-        isTokenValid,
-        invalidateToken
+        setProdUrl,
+        setDevUrl,
     };
-})
+});
 
 if (import.meta.hot)
     import.meta.hot.accept(acceptHMRUpdate(useGlobalStore, import.meta.hot))

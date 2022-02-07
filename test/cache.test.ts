@@ -1,11 +1,14 @@
 import { createPinia, setActivePinia } from 'pinia'
 
 beforeEach(() => {
-  setActivePinia(createPinia())
+    setActivePinia(createPinia())
+    const globalStore = useGlobalStore()
+    globalStore.setBackendUrl("http://shuwashuwa.kinami.cc:8848")
 })
 
 import { login } from '../src/api/login'
 import { deleteCache, getCacheSize } from '../src/api/cache'
+import { useGlobalStore } from '~/stores/global'
 
 it('get cache size', async() => {
   await login('shuwashuwa', 'Tsugudaisuki')

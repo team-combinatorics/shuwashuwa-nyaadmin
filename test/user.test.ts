@@ -2,6 +2,8 @@ import { setActivePinia, createPinia } from 'pinia'
 
 beforeEach(() => {
     setActivePinia(createPinia())
+    const globalStore = useGlobalStore()
+    globalStore.setBackendUrl("http://shuwashuwa.kinami.cc:8848")
 })
 
 import {login} from "../src/api/login";
@@ -17,6 +19,7 @@ import {
     getVolunteerList,
     getVolunteerInfo
 } from "../src/api/user";
+import { useGlobalStore } from '~/stores/global'
 
 it("get admin list", async ()=>{
     await login("shuwashuwa", "Tsugudaisuki");

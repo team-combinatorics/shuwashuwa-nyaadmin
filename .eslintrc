@@ -6,7 +6,7 @@
     "parser": "vue-eslint-parser",
     "extends": [
         "eslint:recommended",
-        "plugin:vue/strongly-recommended",
+        "plugin:vue/vue3-essential",
         "plugin:@typescript-eslint/recommended"
     ],
     "parserOptions": {

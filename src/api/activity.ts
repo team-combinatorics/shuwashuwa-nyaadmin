@@ -1,12 +1,12 @@
-import {request} from "~/api/request";
-import {Activity, ActivityInfo, ActivityQuery, TimeSlot} from "~/models/activity";
+import { request } from "~/api/request";
+import type { Activity, ActivityInfo, ActivityQuery, TimeSlot } from "~/models/activity";
 
 /**
  * Return Base64 Encoded QR image
  * @param activityid number
  */
 export const getActivityQR: (activityid: number) => Promise<string> = async (activityid) => {
-    const res = request("/api/super/QRCode", "get", {activityId: activityid}, true);
+    const res = request("/api/super/QRCode", "get", { activityId: activityid }, true);
     return res as unknown as string;
 }
 
@@ -16,7 +16,7 @@ export const getActivityList: (query?: ActivityQuery) => Promise<ActivityInfo[]>
 }
 
 export const getActivityTimeSlots: (activityid: number) => Promise<TimeSlot[]> = async (activityid) => {
-    const res = request("/api/activity/slot", "get", {activity: activityid}, true);
+    const res = request("/api/activity/slot", "get", { activity: activityid }, true);
     return res as unknown as TimeSlot[];
 }
 

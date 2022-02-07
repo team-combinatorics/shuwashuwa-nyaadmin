@@ -15,14 +15,13 @@ const prefersDark = usePreferredDark()
     <n-layout class="default-layout">
       <n-notification-provider>
       <n-message-provider>
-        <Header />
         <router-view />
       </n-message-provider>
       </n-notification-provider>
     </n-layout>
 
     <div class="shadow-meta">
-      <!-- Layout: Default -->
+      <!-- Layout: Login -->
     </div>
   </n-config-provider>
 </template>

@@ -4,12 +4,11 @@
 
 declare module 'vue' {
   export interface GlobalComponents {
-    CarbonCampsite: typeof import('~icons/carbon/campsite')['default']
-    CarbonDicomOverlay: typeof import('~icons/carbon/dicom-overlay')['default']
-    CarbonLogoGithub: typeof import('~icons/carbon/logo-github')['default']
-    CarbonMoon: typeof import('~icons/carbon/moon')['default']
-    CarbonSun: typeof import('~icons/carbon/sun')['default']
+    CacheCard: typeof import('./components/optionpanel/CacheCard.vue')['default']
     Footer: typeof import('./components/Footer.vue')['default']
+    Header: typeof import('./components/Header.vue')['default']
+    OptionPanel: typeof import('./components/OptionPanel.vue')['default']
+    PasswordCard: typeof import('./components/optionpanel/PasswordCard.vue')['default']
     README: typeof import('./components/README.md')['default']
     Waves: typeof import('./components/Waves.vue')['default']
   }

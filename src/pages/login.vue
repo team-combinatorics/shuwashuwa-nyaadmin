@@ -1,60 +1,86 @@
 <script setup lang="ts">
-import { NAvatar, NCard, NForm, NFormItem, NButton, NInput, NRadioButton, NRadioGroup, NIcon } from 'naive-ui';
+import {NCard, NButton, NInput, NRadioButton, NRadioGroup, NIcon } from 'naive-ui';
 
 import { SettingsOutline, ChevronBackOutline } from '@vicons/ionicons5';
 
+import { useGlobalStore } from '~/stores/global';
+
+
+import { useRouter } from 'vue-router';
+import { useMessage } from 'naive-ui';
+import { parseError } from '~/composables/error';
+
+/* wave background */
+import WavesBackground from '~/components/Waves.vue';
+
+import { login } from '~/api/login';
+
+/* primary color */
 import { useThemeVars } from 'naive-ui';
 const themeVars = useThemeVars()
 
-import { usePreferredDark } from '@vueuse/core';
-import WavesBackground from '~/components/Waves.vue';
+/* dark mode */
 const prefersDark = usePreferredDark();
 
-const showOptions = ref(true);
-
+/* option / login panel */
+const showOptions = ref(false);
 const toggleShowOptions = () => {
   showOptions.value = !showOptions.value;
 }
 
-import { useGlobalStore } from '~/stores/global';
-const { backendUrl, setBackendUrl } = useGlobalStore();
+/* options */
+const globalStore = useGlobalStore();
+const setProdUrl = () => globalStore.setProdUrl();
+const setDevUrl = () => globalStore.setDevUrl();
+const setCustomState = () => globalStore.env = 'custom';
 
-const prodUrl = import.meta.env.VITE_PROD_URL;
+/* login */
+const username = ref('');
+const password = ref('');
 
-const devUrl = import.meta.env.VITE_DEV_URL;
+const router = useRouter();
+const message = useMessage();
 
-const setDevEnv = () => {
-  console.log(devUrl);
-  setBackendUrl(devUrl);
-  console.log(backendUrl);
+const doLogin = () => {
+  if (username.value && password.value) {
+    login(username.value, password.value)
+      .then(() => {
+        message.success('登录成功');
+        // delay 600ms to make sure the message is shown
+        setTimeout(() => {
+          // if previous page is login page, redirect to home page
+          if (router.currentRoute.name === 'login') {
+            router.push('/');
+          }
+          // else redirect to previous page
+          else {
+            router.back();
+          }
+        }, 600);
+      })
+      .catch(error => {
+        message.error(parseError(error).message);
+      });
+  }
 }
-
-const setProdEnv = () => {
-  console.log(prodUrl);
-  setBackendUrl(prodUrl);
-  console.log(backendUrl);
-}
-
 </script>
 
 <template>
   <!-- center everything -->
   <div>
-    <div
-      class="h-100vh flex justify-center items-center"
-    >
+    <div class="h-100vh flex justify-center items-center">
       <n-card class="login-card">
         <img
           class="logo"
-          :src="prefersDark? '/shuwashuwa-dark.png' : '/shuwashuwa-light.png'"
+          :src="prefersDark ? '/shuwashuwa-dark.webp' : '/shuwashuwa-light.webp'"
           alt="Shuwashuwa"
-        >
+        />
 
         <n-button
-          strong
-          secondary
+          quaternary
           circle
           type="primary"
+          size="small"
           @click="toggleShowOptions"
           class="options-button"
         >
@@ -63,69 +89,55 @@ const setProdEnv = () => {
             <settings-outline v-else />
           </n-icon>
         </n-button>
-    
-        <form
-          class="flex flex-col justify-center items-center"
-          v-if="!showOptions"
-        >
+
+        <form class="flex flex-col justify-center items-center" v-if="!showOptions">
           <n-input
             placeholder="用户名"
             type="text"
             class="my-2.5 text-center"
+            v-model:value="username"
           />
           <n-input
             placeholder="密码"
             type="password"
             class="my-2.5 text-center"
+            v-model:value="password"
           />
           <n-button
             style="width: 100%"
             type="primary"
             class="mt-2.5"
-          >
-            登录
-          </n-button>
+            @click="doLogin"
+            :disabled="!username || !password"
+          >登录</n-button>
         </form>
 
-        <div
-          class="flex flex-col justify-center items-center"
-          v-else
-        >
-          <n-radio-group
-            name="envselector"
-            class="my-2.5 text-center w-full"
-          >
+        <div class="flex flex-col justify-center items-center" v-else>
+          <n-radio-group name="envselector" class="my-2.5 text-center w-full">
             <n-radio-button
-              value="production"
-            >
-              生产环境
-            </n-radio-button>
-            <n-radio-button
-              value="development"
-              :checked="backendUrl.value === devUrl"
-              @click="setDevEnv"
-            >
-              测试环境
-            </n-radio-button>
+              value="prod"
+              :checked="globalStore.env == 'prod'"
+              @click="setProdUrl"
+            >生产环境</n-radio-button>
+            <n-radio-button value="dev" :checked="globalStore.env == 'dev'" @click="setDevUrl">测试环境</n-radio-button>
             <n-radio-button
               value="custom"
-            >
-              自定义
-            </n-radio-button>
+              :checked="globalStore.env == 'custom'"
+              @click="setCustomState"
+            >自定义</n-radio-button>
           </n-radio-group>
 
           <n-input
             placeholder="自定义域名"
             type="text"
             class="my-2.5 text-center input-custom"
+            :disabled="globalStore.env !== 'custom'"
+            v-model:value="globalStore.backendUrl"
           />
         </div>
       </n-card>
     </div>
-    <waves-background
-      :color="themeVars.primaryColor"
-      class="w-100vw"
-    />
+    <waves-background :color="themeVars.primaryColor" class="w-100vw" />
   </div>
 </template>
 
@@ -141,19 +153,25 @@ const setProdEnv = () => {
 }
 
 .logo {
-  @apply relative mx-auto flex-none;
+  @apply relative mx-auto;
   top: -70px; /* 20px padding */
   max-width: 100px;
   margin-bottom: -50px;
+  flex-basis: 100%;
 }
 
 .options-button {
-  @apply relative m-0 flex-none;
-  top: -55px;
-  margin-bottom: -55px;
+  @apply absolute top-0 left-0;
+  margin: 24px;
 }
 
 .input-custom {
+  /* align manually */
   max-width: 242px;
 }
 </style>
+
+<route lang="yaml">
+meta:
+  layout: login
+</route>

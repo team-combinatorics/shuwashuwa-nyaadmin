@@ -1,16 +1,19 @@
 import { setActivePinia, createPinia } from 'pinia';
-beforeEach(() => {
-    setActivePinia(createPinia())
-})
 
 import { changePassword, login } from "../src/api/login";
 import { CommonResponse } from "~/models/commonResponse";
 
+import { useUserStore } from "~/stores/user";
 import { useGlobalStore } from "~/stores/global";
 
+beforeEach(() => {
+    setActivePinia(createPinia())
+    const globalStore = useGlobalStore()
+    globalStore.setBackendUrl("http://shuwashuwa.kinami.cc:8848")
+})
+
 it("login", async () => {
-        setActivePinia(createPinia())
-        const store = useGlobalStore();
+        const store = useUserStore();
         const res = await login("shuwashuwa", "Tsugudaisuki");
         console.log(res);
         expect(store.token).equals(res);

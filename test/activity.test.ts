@@ -1,7 +1,10 @@
 import { setActivePinia, createPinia } from 'pinia'
+import { useGlobalStore } from '~/stores/global'
 
 beforeEach(() => {
     setActivePinia(createPinia())
+    const globalStore = useGlobalStore()
+    globalStore.setBackendUrl("http://shuwashuwa.kinami.cc:8848")
 })
 
 import {login} from "../src/api/login";
