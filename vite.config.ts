@@ -11,6 +11,7 @@ import AutoImport from 'unplugin-auto-import/vite'
 import Markdown from 'vite-plugin-md'
 import Inspect from 'vite-plugin-inspect'
 import LinkAttributes from 'markdown-it-link-attributes'
+import vueJsx from '@vitejs/plugin-vue-jsx'
 
 const markdownWrapperClasses = 'prose prose-sm m-auto text-left'
 
@@ -29,6 +30,8 @@ export default defineConfig({
     Pages({
       extensions: ['vue', 'md'],
     }),
+
+    vueJsx(),
 
     // https://github.com/JohnCampionJr/vite-plugin-vue-layouts
     Layouts(),

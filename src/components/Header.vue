@@ -1,6 +1,6 @@
-<script setup lang="ts">
+<script setup lang="tsx">
 
-import { NDrawer, NDrawerContent, NButton, NPopconfirm, NIcon, NText, NImage } from 'naive-ui';
+import { NDrawer, NDrawerContent, NButton, NPopconfirm, NIcon, NText, NLayoutHeader, NMenu } from 'naive-ui';
 import { useThemeVars } from 'naive-ui';
 import { usePreferredDark } from '@vueuse/core';
 
@@ -35,37 +35,85 @@ const isCurrentPage = (name: string) => {
     return router.currentRoute.name === name;
 }
 
+
+const menuOptions = [
+    {
+        label: () =>
+        (<router-link class="header-btn" to="/" title="主页">
+            主页
+        </router-link>),
+        key: 'go_home',
+        icon: () =>
+        (<NIcon class="icon-btn" size="24">
+            <HomeOutline />
+        </NIcon>)
+    },
+    {
+        label: () =>
+        (<router-link class="header-btn" to="/activity" title="活动">
+            活动
+        </router-link>),
+        key: 'go_activity',
+        icon: () =>
+        (<NIcon class="icon-btn" size="24">
+            <ListOutline />
+        </NIcon>)
+    },
+    {
+        label: () =>
+        (<router-link class="header-btn" to="/admin" title="管理员">
+            管理员
+        </router-link>),
+        key: 'go_admin',
+        icon: () =>
+        (<NIcon class="icon-btn" size="24">
+            <PeopleOutline />
+        </NIcon>)
+    },
+    {
+        label: () =>
+        (<router-link class="header-btn" to="/stats" title="数据">
+            数据
+        </router-link>),
+        key: 'go_stats',
+        icon: () =>
+        (<NIcon class="icon-btn" size="24">
+            <ListOutline />
+        </NIcon>)
+    },
+]
+
 </script>
 
 <template>
-    <div class="header-container">
+    <n-layout-header class="header-container">
         <!-- logo -->
+
         <div class="header-logo">
             <img src="/shuwashuwa-square.webp" />
-            <n-text> Shuwashuwa </n-text>
+            <n-text>Shuwashuwa</n-text>
         </div>
+
+        <n-menu :options="menuOptions" class="flex" />
 
         <!-- navbar -->
         <nav class="header-nav">
             <router-link class="header-btn" to="/" title="主页">
                 <n-icon class="icon-btn" size="24">
                     <home />
-                </n-icon>
-                主页
+                </n-icon>主页
             </router-link>
 
             <router-link class="header-btn" to="/activity" title="活动">
                 <n-icon class="icon-btn" size="24">
                     <list />
-                </n-icon>
-                活动
+                </n-icon>活动
             </router-link>
 
             <router-link class="header-btn" to="/admin" title="管理员">
                 <n-icon class="icon-btn" size="24">
                     <user-multiple />
-                </n-icon>
-                管理员
+                </n-icon>管理员
             </router-link>
 
             <router-link class="header-btn" to="/stats" title="数据">
@@ -94,8 +142,7 @@ const isCurrentPage = (name: string) => {
                     <div class="header-btn">
                         <n-icon class="icon-btn" size="24">
                             <LogOutOutline />
-                        </n-icon>
-                        退出
+                        </n-icon>退出
                     </div>
                 </template>
                 确定要退出登录吗？
@@ -108,20 +155,30 @@ const isCurrentPage = (name: string) => {
                 <PasswordCard />
             </n-drawer-content>
         </n-drawer>
-    </div>
+    </n-layout-header>
 </template>
 
 <style scoped>
 .header-container {
-    @apply flex justify-between items-center;
-    color: v-bind(themeVars.textColor1);
-    background-color: v-bind(themeVars.cardColor);
+    @apply flex justify-around items-center;
+    /* color: v-bind(themeVars.textColor1);
+    background-color: v-bind(themeVars.cardColor); */
+    height: 64px;
 }
 
 .header-logo {
     @apply flex justify-between items-center;
-    width: 24px;
-    margin: 10px;
+    cursor: pointer;
+}
+
+.header-logo > img {
+    margin-right: 12px;
+    width: 32px;
+    height: 32px;
+}
+
+.header-logo > .n-text {
+    font-size: 18px;
 }
 
 .header-nav {
@@ -139,6 +196,7 @@ const isCurrentPage = (name: string) => {
 
 .header-btn:hover,
 .header-btn:focus {
+    @apply animate-ease-in-out;
     border-bottom: 2px solid;
     color: v-bind(themeVars.primaryColor);
 }

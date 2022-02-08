@@ -14,6 +14,10 @@ import 'virtual:windi-utilities.css'
 // windicss devtools support (dev only)
 import 'virtual:windi-devtools'
 
+/* vfonts */
+import 'vfonts/Lato.css'
+import 'vfonts/FiraCode.css'
+
 /* Init Routes and Layouts */
 /* https://github.com/JohnCampionJr/vite-plugin-vue-layouts */
 import { createRouter, createWebHistory } from 'vue-router'

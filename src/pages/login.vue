@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import {NCard, NButton, NInput, NRadioButton, NRadioGroup, NIcon } from 'naive-ui';
+import { NCard, NButton, NInput, NRadioButton, NRadioGroup, NIcon } from 'naive-ui';
 
 import { SettingsOutline, ChevronBackOutline } from '@vicons/ionicons5';
 
