@@ -2,6 +2,9 @@
 import { usePreferredDark } from '@vueuse/core'
 import { NConfigProvider, darkTheme } from 'naive-ui'
 
+// auto-detect dark theme support
+const prefersDark = usePreferredDark()
+
 // https://github.com/vueuse/head
 // you can use this to manipulate the document head in any components
 useHead({
@@ -10,12 +13,11 @@ useHead({
     { name: '修哇修哇', content: '超管平台' },
   ],
   link: [
-    { rel: 'icon', type: 'image/x-icon', href: '/favicon.webp' },
+    { rel: 'icon', type: 'image/x-icon', href: prefersDark.value ? '/shuwashuwa-text-dark.png': '/shuwashuwa-text-light.png' },
   ],
 })
 
-// auto-detect dark theme support
-const prefersDark = usePreferredDark()
+
 </script>
 
 

@@ -11,7 +11,6 @@ const prefersDark = usePreferredDark()
 
 <template>
   <n-config-provider :theme="prefersDark ? darkTheme : null">
-    
     <n-layout class="default-layout">
       <n-notification-provider>
       <n-message-provider>
@@ -26,3 +25,13 @@ const prefersDark = usePreferredDark()
     </div>
   </n-config-provider>
 </template>
+
+
+<style>
+/*
+.default-layout {
+  margin: 0 auto;
+  max-width: 1300px;
+}
+*/
+</style>

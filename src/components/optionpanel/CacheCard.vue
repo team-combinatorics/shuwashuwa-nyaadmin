@@ -57,7 +57,7 @@ const doDeleteCache = async () => {
 
         <template #action>
             <div class="mb-10px">清除 {{ cacheBeforeDays }} 天前上传的图片</div>
-            <div class="flex flex-row justify-between">
+            <div class="flex flex-row justify-center">
                 <n-input-number
                     min="0"
                     placeholder="清除N天前的图片"
@@ -80,9 +80,13 @@ const doDeleteCache = async () => {
     </n-card>
 </template>
 
-<style scoped>
-
+<style> /* overriding styles */
 .cache-btn {
-    @apply flex-none;
+    @apply flex-none rounded-l-none;
+}
+
+.cache-input .n-input__border,
+.cache-input .n-input__state-border{
+    @apply rounded-r-none;
 }
 </style>

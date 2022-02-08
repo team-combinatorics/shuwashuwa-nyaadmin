@@ -10,6 +10,8 @@ import { useRouter } from 'vue-router';
 import { useMessage } from 'naive-ui';
 import { parseError } from '~/composables/error';
 
+import { useHead } from '@vueuse/head';
+
 /* wave background */
 import WavesBackground from '~/components/Waves.vue';
 
@@ -18,6 +20,10 @@ import { login } from '~/api/login';
 /* primary color */
 import { useThemeVars } from 'naive-ui';
 const themeVars = useThemeVars()
+
+useHead({
+    title: '登录 | 修哇修哇'
+})
 
 /* dark mode */
 const prefersDark = usePreferredDark();

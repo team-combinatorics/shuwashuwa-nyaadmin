@@ -1,11 +1,13 @@
 <script setup lang="tsx">
 
-import { NDrawer, NDrawerContent, NButton, NPopconfirm, NIcon, NText, NLayoutHeader, NMenu } from 'naive-ui';
+import { NSpace, NButton, NPopconfirm, NIcon, NText, NLayoutHeader, NMenu } from 'naive-ui';
 import { useThemeVars } from 'naive-ui';
 import { usePreferredDark } from '@vueuse/core';
 
-import PasswordCard from './optionpanel/PasswordCard.vue';
-import CacheCard from './optionpanel/CacheCard.vue';
+import { RouterLink } from 'vue-router';
+
+import PasswordCard from './OptionPanel/PasswordCard.vue';
+import CacheCard from './OptionPanel/CacheCard.vue';
 
 import { useUserStore } from '~/stores/user';
 import { useRouter } from 'vue-router';
@@ -13,6 +15,8 @@ import { useRouter } from 'vue-router';
 import { HomeOutline, PeopleOutline, ListOutline, SettingsOutline, LogOutOutline, StatsChartOutline } from '@vicons/ionicons5';
 import { Home, UserMultiple, List, Settings, Logout, ChartRiver } from '@vicons/carbon';
 import Activity from '~/pages/activity/index.vue';
+
+import OptionPanel from './OptionPanel/index.vue';
 
 const themeVars = useThemeVars();
 console.log(themeVars);
@@ -31,56 +35,70 @@ const doShowOptions = () => {
     showOptions.value = true;
 }
 
-const isCurrentPage = (name: string) => {
-    return router.currentRoute.name === name;
+
+const renderIcon = (icon: any) => {
+    return () => h(NIcon, { default: () => h(icon) })
 }
 
+const renderRouterLink = (to: string, title: string) => {
+    return () => h(
+        RouterLink,
+        { to: to, title: title },
+        { default: () => title }
+    )
+}
 
-const menuOptions = [
+// default value is current route
+const currentRouteName = router.currentRoute.value.name as string;
+
+const navOptions = [
     {
-        label: () =>
-        (<router-link class="header-btn" to="/" title="主页">
-            主页
-        </router-link>),
-        key: 'go_home',
-        icon: () =>
-        (<NIcon class="icon-btn" size="24">
-            <HomeOutline />
-        </NIcon>)
+        label: renderRouterLink('/', '首页'),
+        key: 'home',
+        icon: renderIcon(HomeOutline),
     },
     {
-        label: () =>
-        (<router-link class="header-btn" to="/activity" title="活动">
-            活动
-        </router-link>),
-        key: 'go_activity',
-        icon: () =>
-        (<NIcon class="icon-btn" size="24">
-            <ListOutline />
-        </NIcon>)
+        label: renderRouterLink('/activity', '活动'),
+        key: 'activity',
+        icon: renderIcon(ListOutline),
     },
     {
-        label: () =>
-        (<router-link class="header-btn" to="/admin" title="管理员">
-            管理员
-        </router-link>),
-        key: 'go_admin',
-        icon: () =>
-        (<NIcon class="icon-btn" size="24">
-            <PeopleOutline />
-        </NIcon>)
+        label: renderRouterLink('/admin', '管理员'),
+        key: 'admin',
+        icon: renderIcon(PeopleOutline)
     },
     {
-        label: () =>
-        (<router-link class="header-btn" to="/stats" title="数据">
-            数据
-        </router-link>),
-        key: 'go_stats',
-        icon: () =>
-        (<NIcon class="icon-btn" size="24">
-            <ListOutline />
-        </NIcon>)
+        label: renderRouterLink('/service', '维修单'),
+        key: 'service',
+        icon: renderIcon(HomeOutline)
     },
+    {
+        label: renderRouterLink('/stats', '统计'),
+        key: 'stats',
+        icon: renderIcon(StatsChartOutline)
+    },
+]
+
+// make it an animation
+const btnVal = ref(null);
+const onBtnUpdate = () => {
+    setTimeout(() => {
+        btnVal.value = null;
+    }, 300);
+}
+
+const btnOptions = [
+
+    {  
+        label: () => h(NButton, { text: true, onClick: doShowOptions }, { default: () => '选项' }),
+        key: 'on_settings',
+        icon: renderIcon(SettingsOutline)
+    },
+    {
+        label: () => h(NButton, { text: true, onClick: doShowOptions }, { default: () => '选项' }),
+        key: 'on_aaa',
+        icon: renderIcon(SettingsOutline),
+    }
 ]
 
 </script>
@@ -88,48 +106,28 @@ const menuOptions = [
 <template>
     <n-layout-header class="header-container">
         <!-- logo -->
-
-        <div class="header-logo">
-            <img src="/shuwashuwa-square.webp" />
-            <n-text>Shuwashuwa</n-text>
-        </div>
-
-        <n-menu :options="menuOptions" class="flex" />
+        <router-link title="首页" to="/">
+            <div class="header-logo">
+                <img src="/shuwashuwa-text-light.png" />
+                <n-text>修哇修哇超管控制台</n-text>
+            </div>
+        </router-link>
 
         <!-- navbar -->
-        <nav class="header-nav">
-            <router-link class="header-btn" to="/" title="主页">
-                <n-icon class="icon-btn" size="24">
-                    <home />
-                </n-icon>主页
-            </router-link>
+        <n-menu :options="navOptions" :default-value="currentRouteName" class="header-nav"/>
 
-            <router-link class="header-btn" to="/activity" title="活动">
-                <n-icon class="icon-btn" size="24">
-                    <list />
-                </n-icon>活动
-            </router-link>
-
-            <router-link class="header-btn" to="/admin" title="管理员">
-                <n-icon class="icon-btn" size="24">
-                    <user-multiple />
-                </n-icon>管理员
-            </router-link>
-
-            <router-link class="header-btn" to="/stats" title="数据">
-                <n-icon class="icon-btn" size="24">
-                    <chart-river />
-                </n-icon>
-                <n-text class="text-btn">数据</n-text>
-            </router-link>
+        <!-- buttons -->
+        <div class="header-btn-container">
 
             <!-- options -->
-            <div class="header-btn" @click="doShowOptions">
-                <n-icon class="icon-btn" size="24">
-                    <settings />
-                </n-icon>
-                <n-text class="text-btn">选项</n-text>
-            </div>
+            <n-button text @click="doShowOptions" class="header-btn">
+                <template #icon>
+                    <n-icon class="icon-btn">
+                        <settings />
+                    </n-icon>
+                </template>
+                选项
+            </n-button>
 
             <!-- logout -->
             <n-popconfirm
@@ -139,28 +137,26 @@ const menuOptions = [
                 negative-text="取消"
             >
                 <template #trigger>
-                    <div class="header-btn">
-                        <n-icon class="icon-btn" size="24">
-                            <LogOutOutline />
-                        </n-icon>退出
-                    </div>
+                    <n-button text class="header-btn">
+                        <template #icon>
+                            <n-icon class="icon-btn">
+                                <LogOutOutline />
+                            </n-icon>
+                        </template>
+                        退出
+                    </n-button>
                 </template>
                 确定要退出登录吗？
             </n-popconfirm>
-        </nav>
+        </div>
 
-        <n-drawer placement="right" v-model:show="showOptions" :auto-focus="false" width="400">
-            <n-drawer-content title="选项">
-                <CacheCard class="mt-1 mb-5" />
-                <PasswordCard />
-            </n-drawer-content>
-        </n-drawer>
+        <OptionPanel placement="right" v-model:show="showOptions" />
     </n-layout-header>
 </template>
 
-<style scoped>
+<style scoped> /* localized styles */
 .header-container {
-    @apply flex justify-around items-center;
+    @apply flex justify-end items-center;
     /* color: v-bind(themeVars.textColor1);
     background-color: v-bind(themeVars.cardColor); */
     height: 64px;
@@ -183,32 +179,31 @@ const menuOptions = [
 
 .header-nav {
     @apply flex justify-center items-center;
-    font-size: 16px;
+}
+
+.header-btn-container {
+    @apply flex justify-center items-center;
 }
 
 .header-btn {
     @apply flex justify-center items-center mx-1;
-    padding: 10px;
-    border-bottom: 2px solid transparent;
+    padding-left: 32px;
+    padding-right: 32px;
     cursor: pointer;
     align-self: center;
 }
+</style>
 
-.header-btn:hover,
-.header-btn:focus {
-    @apply animate-ease-in-out;
-    border-bottom: 2px solid;
-    color: v-bind(themeVars.primaryColor);
+<style> /* overriding styles */
+
+.header-nav.n-menu .n-menu-item-content {
+    padding-right: 32px;
 }
 
-.icon-btn {
-    @apply mr-1.5;
+.header-btn .n-button__icon {
+    width: 24px;
     height: 24px;
-    color: inherit;
-}
-
-.text-btn {
-    @apply ml-1;
-    color: inherit;
+    margin-right: 8px;
+    font-size: 20px;
 }
 </style>

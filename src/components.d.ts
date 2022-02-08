@@ -4,11 +4,11 @@
 
 declare module 'vue' {
   export interface GlobalComponents {
-    CacheCard: typeof import('./components/optionpanel/CacheCard.vue')['default']
+    CacheCard: typeof import('./components/OptionPanel/CacheCard.vue')['default']
     Footer: typeof import('./components/Footer.vue')['default']
     Header: typeof import('./components/Header.vue')['default']
-    OptionPanel: typeof import('./components/OptionPanel.vue')['default']
-    PasswordCard: typeof import('./components/optionpanel/PasswordCard.vue')['default']
+    OptionPanel: typeof import('./components/OptionPanel/index.vue')['default']
+    PasswordCard: typeof import('./components/OptionPanel/PasswordCard.vue')['default']
     README: typeof import('./components/README.md')['default']
     Waves: typeof import('./components/Waves.vue')['default']
   }
