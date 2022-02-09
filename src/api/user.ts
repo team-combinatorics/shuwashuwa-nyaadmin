@@ -6,6 +6,11 @@ export const getAdminInfo: (userid: number) => Promise<User> = async (userid) =>
     return res as unknown as User;
 }
 
+export const getUserInfo: (userid: number) => Promise<User> = async (userid) => {
+    const res = request("/api/super/user", "get", { userID: userid }, true);
+    return res as unknown as User;
+}
+
 export const getVolunteerInfo: (userid: number) => Promise<User> = async (userid) => {
     const res = request("/api/volunteer", "get", { userID: userid }, true);
     return res as unknown as User;

@@ -28,10 +28,9 @@ const prefersDark = usePreferredDark()
 
 
 <style>
-/*
+
 .default-layout {
-  margin: 0 auto;
-  max-width: 1300px;
+  height: 100vh;
 }
-*/
+
 </style>

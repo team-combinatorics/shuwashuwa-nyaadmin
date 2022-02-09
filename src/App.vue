@@ -7,13 +7,22 @@ const prefersDark = usePreferredDark()
 
 // https://github.com/vueuse/head
 // you can use this to manipulate the document head in any components
+
+const icon = computed(() => {
+    return prefersDark.value ? '/shuwashuwa-text-dark.png': '/shuwashuwa-text-light.png'
+})
+
 useHead({
   title: '修哇修哇',
   meta: [
-    { name: '修哇修哇', content: '超管平台' },
+    {
+      property: 'og:locale:alternate',
+      content: 'zh',
+      key: 'zh',
+    },
   ],
   link: [
-    { rel: 'icon', type: 'image/x-icon', href: prefersDark.value ? '/shuwashuwa-text-dark.png': '/shuwashuwa-text-light.png' },
+    { rel: 'icon', type: 'image/x-icon', href: icon},
   ],
 })
 

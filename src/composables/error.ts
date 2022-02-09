@@ -54,8 +54,9 @@ import { Router } from "vue-router";
  * @param error Runtime Error
  * @param message useMessage to show error message
  * @param router useRouter to redirect
+ * @param text override message text
  */
-export const handleError = (error: Error, message: MessageApiInjection, router: Router) => {
+export const handleError = (error: Error, message: MessageApiInjection, router: Router, text: String | undefined = undefined) => {
     const errObj = parseError(error);
     console.error(errObj.message);
     if (errObj.code === 40006 || errObj.code === 40007) {
@@ -67,6 +68,6 @@ export const handleError = (error: Error, message: MessageApiInjection, router: 
         }, 600);
     }
     else {
-        message.error(errObj.message !== "Error" ? errObj.message : errObj.data);
+        message.error( text || (errObj.message !== "Error" ? errObj.message : errObj.data));
     }
 }
