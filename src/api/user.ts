@@ -7,7 +7,11 @@ export const getAdminInfo: (userid: number) => Promise<User> = async (userid) =>
 }
 
 export const getUserInfo: (userid: number) => Promise<User> = async (userid) => {
-    const res = request("/api/super/user", "get", { userID: userid }, true);
+    const res = request("/api/super/user", "get", { userID: userid }, true)
+    .then(res => {
+        res.userid = userid;
+        return res;
+    })
     return res as unknown as User;
 }
 

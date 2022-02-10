@@ -17,7 +17,8 @@ import {
     deleteAdmin,
     updateAdmin,
     getVolunteerList,
-    getVolunteerInfo
+    getVolunteerInfo,
+getUserInfo
 } from "../src/api/user";
 import { useGlobalStore } from '~/stores/global'
 
@@ -39,6 +40,13 @@ it("get admin info", async ()=>{
     const lastId = adminlist[adminlist.length-1].userid;
 
     const userInfo: User = await getAdminInfo(lastId);
+    console.log(userInfo);
+})
+
+it("get user info", async ()=>{
+    await login("shuwashuwa", "Tsugudaisuki");
+    const userInfo: User = await getUserInfo(1);
+    expect(userInfo.userid).toBe(1);
     console.log(userInfo);
 })
 
