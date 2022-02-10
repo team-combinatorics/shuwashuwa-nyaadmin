@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { usePreferredDark } from '@vueuse/core'
 import { NConfigProvider, darkTheme } from 'naive-ui'
+  import { zhCN, dateZhCN } from 'naive-ui'
 
 // auto-detect dark theme support
 const prefersDark = usePreferredDark()
@@ -32,6 +33,8 @@ useHead({
 
 <template>
   <n-config-provider
+    :locale="zhCN" 
+    :date-locale="dateZhCN"
     :theme="prefersDark ? darkTheme : null"
   >
     <router-view />

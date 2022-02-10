@@ -1,13 +1,529 @@
 <script setup lang="ts">
+import { useHead } from '@vueuse/head';
+import { useWindowSize } from '@vueuse/core';
+import type { Ref } from 'vue';
 
-import {useHead} from '@vueuse/head';
+import type { TimeSlot, Activity, ActivityInfo, ActivityQuery } from '~/models/activity';
+import { deleteActivity, addActivity, updateActivity, getActivityList, getActivityTimeSlots } from '~/api/activity';
+
+import { handleError } from '~/composables/error';
+
+import { NDataTable, NButton, NIcon, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NPopconfirm, NDatePicker, NH3, NDynamicInput, NInputNumber, NSpace } from 'naive-ui';
+import type { SelectOption } from 'naive-ui';
+import { useMessage } from 'naive-ui';
+
+import { formatDate, parseDate, splitTimeSlots } from '~/composables/date';
+
+import { Edit } from '@vicons/carbon';
+import { AddOutline, CheckmarkOutline, CloseOutline, ListOutline } from '@vicons/ionicons5';
+
 useHead({
     title: '活动 | 修哇修哇'
 })
 
+/* make it responsive */
+const windowSize = useWindowSize();
+
+const useMobileLayout = computed(() => {
+    return windowSize.width.value <= 590;
+})
+
+const drawerWidth = computed(() => {
+    // make it possible to close
+    return useMobileLayout.value ? windowSize.width.value * 0.85 : 500;
+})
+
+const message = useMessage();
+const router = useRouter();
+
+const activityList: Ref<ActivityInfo[]> = ref([]);
+const activityLoading = ref(false);
+const activityListLoading = ref(false);
+
+const getActivityListAsync = async () => {
+    if (activityListLoading.value) return;  /* skip repeated requests */
+    activityListLoading.value = true;
+    try {
+        const list = await getActivityList();
+        activityList.value = list;
+        console.log('activity list refreshed', list);
+    } catch (e: any) {
+        handleError(e, message, router);
+    } finally {
+        activityListLoading.value = false;
+    }
+}
+
+/* get activity list on setup */
+getActivityListAsync();
+
+const nowStr = formatDate(Date.now());
+
+const defaultEditingActivity: Activity = {
+    activityName: '',
+    location: '',
+    startTime: nowStr,
+    endTime: nowStr,
+    timeSlots: [],
+}
+
+/* add or edit */
+
+const isEditing = ref(false);
+const editingActivity = ref<Activity>(defaultEditingActivity);
+const { startTime, endTime, timeSlots } = toRefs(editingActivity.value);
+
+const activityIdComputed = computed(() => {
+    if (editingActivity.value.activityId) {
+        return editingActivity.value.activityId.toString();
+    } else {
+        return '';
+    }
+});
+
+const doAddActivity = () => {
+    isEditing.value = true;
+    editingActivity.value = defaultEditingActivity;
+}
+
+const getActivityAsync = async (actinfo: ActivityInfo) => {
+    activityLoading.value = true;
+
+    const act: Activity = {
+        activityId: actinfo.id,
+        activityName: actinfo.activityName,
+        location: actinfo.location,
+        startTime: actinfo.startTime,
+        endTime: actinfo.endTime,
+        timeSlots: []
+    }
+
+    try {
+        const timeSlots = await getActivityTimeSlots(actinfo.id);
+        act.timeSlots = timeSlots;
+    } catch (e: any) {
+        handleError(e, message, router);
+    } finally {
+        activityLoading.value = false;
+    }
+
+    return act;
+}
+
+const doEditActivity = async (actinfo: ActivityInfo) => {
+    isEditing.value = true;
+    editingActivity.value = await getActivityAsync(actinfo);
+}
+
+const submitActivityAsync = async (act: Activity) => {
+    if (activityLoading.value) return;  /* skip repeated requests */
+    activityLoading.value = true;
+    try {
+        if ("activityId" in act) {
+            console.log('update activity', act);
+            await updateActivity(act);
+            message.success('活动已更新');
+        } else {
+            console.log('add activity', act);
+            await addActivity(act);
+            message.success('活动已添加');
+        }
+        getActivityListAsync();
+    } catch (e: any) {
+        handleError(e, message, router);
+    } finally {
+        activityLoading.value = false;
+    }
+}
+
+const doSubmitActivity = () => {
+    submitActivityAsync(editingActivity.value)
+        .then(() => {
+            getActivityListAsync();
+        })
+
+    isEditing.value = false;
+    editingActivity.value = defaultEditingActivity;
+}
+
+/* timeslots */
+
+/* generate next timeslot with intelligence */
+const generateNewTimeSlot = (): TimeSlot => {
+    const len = editingActivity.value.timeSlots.length;
+    if (len === 0) {
+        return {
+            timeSlot: editingActivity.value.timeSlots.length,
+            startTime: editingActivity.value.startTime,
+            endTime: editingActivity.value.startTime,
+        }
+    }
+    const lastTimeSlot = editingActivity.value.timeSlots[len - 1];
+
+    /* next timeslot starts at the end of last timeslot */
+    const nextTimeSlotStartTime = lastTimeSlot.endTime;
+    /* next timeslot ends after the same interval */
+    const interval = parseDate(lastTimeSlot.endTime) - parseDate(lastTimeSlot.startTime);
+    const lastTimeSlotEndTime = parseDate(lastTimeSlot.endTime);
+    const endTime = parseDate(editingActivity.value.endTime);
+    const nextTimeSlotEndTime = lastTimeSlotEndTime + interval > endTime ? formatDate(endTime) : formatDate(lastTimeSlotEndTime + interval);
+
+    return {
+        timeSlot: lastTimeSlot.timeSlot + 1,
+        startTime: nextTimeSlotStartTime,
+        endTime: nextTimeSlotEndTime
+    }
+}
+
+const timeSlotInterval = ref(30);
+
+const doSplitTimeSlots = () => {
+    const interval = parseDate(endTime.value) - parseDate(startTime.value);
+    if (interval < timeSlotInterval.value * 60 * 1000) {
+        message.error('活动时间小于设定的时间间隔');
+        return;
+    }
+    if (interval > 24 * 60 * 60 * 1000) {
+        message.error('活动时间超过24小时');
+        return;
+    }
+    editingActivity.value.timeSlots = splitTimeSlots(
+        editingActivity.value.startTime, 
+        editingActivity.value.endTime, 
+        timeSlotInterval.value
+    );
+}
+
+/* delete */
+
+const deleteActivityAsync = async (act: Activity) => {
+    if (!("activityId" in act)) return;  /* add activity */
+
+    if (activityLoading.value) return;  /* skip repeated requests */
+    activityLoading.value = true;
+
+    try {
+        await deleteActivity(act.activityId as any);
+        getActivityListAsync();
+    } catch (e: any) {
+        handleError(e, message, router);
+    } finally {
+        activityLoading.value = false;
+    }
+}
+
+const doDeleteActivity = () => {
+    if (editingActivity.value.activityName === defaultEditingActivity.activityName) return;
+
+    deleteActivityAsync(editingActivity.value)
+        .then(() => {
+            /* refresh activity list */
+            getActivityListAsync()
+        })
+
+    isEditing.value = false;
+    editingActivity.value = defaultEditingActivity;
+}
+
+/* table */
+const columns = [
+    {
+        title: 'ID',
+        key: 'id',
+        fixed: 'left',
+        width: '60px',
+    },
+    {
+        title: '名称',
+        key: 'activityName',
+        fixed: 'left',
+        width: '180px',
+        ellipsis: {
+            tooltip: true
+        },
+    },
+    {
+        title: '地点',
+        key: 'location',
+        ellipsis: {
+            tooltip: true
+        },
+    },
+    {
+        title: '开始时间',
+        key: 'startTime',
+        ellipsis: {
+            tooltip: true
+        }
+    },
+    {
+        title: '结束时间',
+        key: 'endTime',
+        ellipsis: {
+            tooltip: true
+        }
+    },
+    {
+        title: '编辑时间',
+        key: 'updatedTime',
+        ellipsis: {
+            tooltip: true
+        }
+    },
+    {
+        title: '操作',
+        key: 'action',
+        fixed: 'right',
+        width: '60px',
+        render: (row: ActivityInfo) => h(
+            NButton,
+            {
+                strong: true,
+                tertiary: true,
+                size: 'small',
+                onClick: () => doEditActivity(row)
+            },
+            {
+                default: () => h(NIcon,
+                    {},
+                    { default: () => h(Edit) }
+                )
+            }
+        )
+    }
+]
 </script>
 
 <template>
-    <div>
+    <!-- add -->
+    <div class="activity-header">
+        <div class="activity-logo flex items-center">
+            <n-h3 prefix="bar" align-text class="logo-text flex items-center ml-2">
+                <n-icon class="activity-icon" size="20">
+                    <list-outline />
+                </n-icon>活动列表
+            </n-h3>
+        </div>
+
+        <div class="add-activity-input">
+            <n-button :disabled="isEditing" @click="doAddActivity" type="primary">
+                <n-icon size="18" class="mr-1">
+                    <add-outline />
+                </n-icon>添加活动
+            </n-button>
+        </div>
     </div>
+
+    <!-- table -->
+    <div class="table-container">
+        <n-data-table
+            ref="table"
+            :columns="columns"
+            :data="activityList"
+            :loading="activityListLoading"
+            :scroll-x="1000"
+            striped
+        />
+    </div>
+
+    <!-- editDrawer -->
+    <n-drawer
+        placement="right"
+        :auto-focus="false"
+        v-model:show="isEditing"
+        close-on-esc
+        :width="drawerWidth"
+    >
+        <n-drawer-content title="编辑活动">
+            <n-form ref="formRef" :model="editingActivity">
+                <n-form-item v-if="activityIdComputed" label="ID" path="activityId">
+                    <n-input
+                        :disabled="true"
+                        :value="activityIdComputed"
+                        :loading="activityLoading"
+                    />
+                </n-form-item>
+                <n-form-item label="名称" path="userName">
+                    <n-input
+                        v-model:value="editingActivity.activityName"
+                        :loading="activityLoading"
+                        placeholder="MM月dd日电脑小队"
+                    />
+                </n-form-item>
+                <n-form-item label="地点" path="location">
+                    <n-input
+                        v-model:value="editingActivity.location"
+                        :loading="activityLoading"
+                        placeholder="理教107"
+                    />
+                </n-form-item>
+                <n-form-item label="开始时间" path="startTime">
+                    <n-date-picker
+                        class="timeslot-picker"
+                        v-model:formatted-value="editingActivity.startTime"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        type="datetime"
+                        placeholder="选择开始时间"
+                        :disabled="activityLoading"
+                        input-readonly
+                    />
+                </n-form-item>
+                <n-form-item label="结束时间" path="endTime">
+                    <n-date-picker
+                        class="timeslot-picker"
+                        v-model:formatted-value="editingActivity.endTime"
+                        value-format="yyyy-MM-dd HH:mm:ss"
+                        type="datetime"
+                        placeholder="选择结束时间"
+                        :disabled="activityLoading"
+                        input-readonly
+                    />
+                </n-form-item>
+
+                <n-form-item label="时间段" path="timeSlots">
+                    <div class="timeslot-container">
+                        <div class="timeslot-btn">
+                            <n-input-number
+                                v-model:value="timeSlotInterval"
+                                :min="15"
+                                :max="360"
+                                :step="15"
+                                :disabled="activityLoading"
+                                placeholder="时间间隔"
+                            >
+                                <template #suffix>分钟为单位</template>
+                            </n-input-number>
+                            <n-button
+                                type="primary"
+                                :disabled="activityLoading"
+                                @click="doSplitTimeSlots"
+                            >自动分割</n-button>
+                        </div>
+                        <!-- ITS A WONDER THIS WORKERS -->
+                        <n-dynamic-input
+                            v-model:value="editingActivity.timeSlots"
+                            :on-create="generateNewTimeSlot"
+                        >
+                            <template #default="{ value }">
+                                <div class="timeslot-picker">
+                                    <n-date-picker
+                                        type="datetimerange"
+                                        placeholder="填写时间段"
+                                        input-readonly
+                                        :value="[parseDate(value.startTime), parseDate(value.endTime)]"
+                                        :disabled="activityLoading"
+                                        :on-update:value="(v) => {
+                                            if (v == null) return;
+                                            value.startTime = formatDate(v[0]);
+                                            value.endTime = formatDate(v[1]);
+                                        }"
+                                    />
+                                </div>
+                            </template>
+                        </n-dynamic-input>
+                    </div>
+                </n-form-item>
+                <n-button
+                    :disabled="!editingActivity.activityName || activityLoading"
+                    @click="doSubmitActivity"
+                    class="drawer-btn"
+                    type="primary"
+                >提交</n-button>
+            </n-form>
+
+            <n-popconfirm
+                v-if="activityIdComputed"
+                @positive-click="doDeleteActivity"
+                positive-text="确定"
+                negative-text="取消"
+            >
+                <template #trigger>
+                    <n-button
+                        :disabled="!editingActivity.activityName || activityLoading"
+                        type="error"
+                        class="drawer-btn"
+                    >删除活动</n-button>
+                </template>
+                确定要删除活动 {{ editingActivity.activityName }} 吗？
+            </n-popconfirm>
+        </n-drawer-content>
+    </n-drawer>
 </template>
+
+<style scoped>
+.drawer-btn {
+    width: 100%;
+    margin-top: 4px;
+    margin-bottom: 24px;
+}
+
+.table-container {
+    @apply flex justify-around;
+}
+
+.add-activity-input {
+    @apply flex justify-end;
+    margin: 15px;
+    flex: none;
+}
+
+.square-btn {
+    aspect-ratio: 1 / 1;
+}
+
+.activity-header {
+    @apply flex justify-between items-center;
+}
+
+.activity-logo {
+    margin: 15px;
+    flex: none;
+}
+
+.activity-icon {
+    @apply mx-2;
+}
+
+/* @media screen and (max-width: 480px) {
+    .activity-icon {
+        @apply ml-1 mr-0;
+    }
+} */
+
+.timeslot-picker {
+    @apply flex justify-center items-center;
+    width: 100%;
+}
+
+.timeslot-container {
+    @apply flex flex-col justify-center items-center;
+    width: 100%;
+}
+
+.timeslot-btn {
+    @apply flex justify-between items-center;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.timeslot-btn .n-button{
+    @apply rounded-l-none;
+    flex: 1;
+}
+</style>
+
+<style> /* Overriding styles */
+.add-activity-input .n-input__border,
+.add-activity-input .n-input__state-border {
+    @apply rounded-none;
+}
+
+.timeslot-btn .n-input__border
+.timeslot-btn .n-input__state-border {
+    @apply rounded-r-none;
+}
+
+.logo-text {
+    @apply my-0;
+}
+</style>

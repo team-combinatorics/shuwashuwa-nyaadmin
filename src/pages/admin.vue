@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useHead } from '@vueuse/head';
+import { useWindowSize } from '@vueuse/core';
 import type { Ref, VNodeChild } from 'vue';
 
 import type { User } from '~/models/user';
@@ -7,20 +8,27 @@ import { deleteAdmin, getAdminList, updateAdmin, addAdmin, getVolunteerList, get
 
 import { handleError } from '~/composables/error';
 
-import { NDataTable, NButton, NIcon, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NPopconfirm, NAutoComplete, NColl } from 'naive-ui';
+import { NDataTable, NButton, NIcon, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NPopconfirm, NAutoComplete, NH3 } from 'naive-ui';
 import type { SelectOption } from 'naive-ui';
 import { useMessage } from 'naive-ui';
 
 import { Edit } from '@vicons/carbon';
-import { AddOutline, CheckmarkOutline, CloseOutline } from '@vicons/ionicons5';
+import { AddOutline, CheckmarkOutline, CloseOutline, PeopleOutline } from '@vicons/ionicons5';
 
 import { Index, Document } from 'flexsearch';
+import { messageLight } from 'naive-ui/lib/message/styles';
 
 useHead({
     title: '管理员 | 修哇修哇'
 })
 
-const messge = useMessage();
+/* make it responsive */
+const windowSize = useWindowSize();
+const hideText = computed(() => {
+    return windowSize.width.value <= 500;
+})
+
+const message = useMessage();
 const router = useRouter();
 
 const adminList: Ref<User[]> = ref([]);
@@ -34,7 +42,7 @@ const getAdminListAsync = async () => {
         adminList.value = list;
         console.log('admin list refreshed', list);
     } catch (e: any) {
-        handleError(e, messge, router);
+        handleError(e, message, router);
     } finally {
         adminLoading.value = false;
     }
@@ -70,26 +78,38 @@ const doEditAdmin = (user: User) => {
 const submitAdminInfoAsync = async (user: User) => {
     try {
         await updateAdmin(user);
-        messge.success('修改成功');
+        message.success('修改成功');
     } catch (e: any) {
-        handleError(e, messge, router);
+        handleError(e, message, router);
     }
 }
 
 const doSubmitAdmin = () => {
     if (editingAdmin.value.userid === defaultEditingAdmin.userid) return;
 
-    submitAdminInfoAsync(editingAdmin.value);
-    isEditing.value = false;
-    editingAdmin.value = defaultEditingAdmin;
+    formRef.value.validate(async (errors) => {
+        if (errors) {
+            message.error('请检查表单');
+            return;
+        } else {
+            submitAdminInfoAsync(editingAdmin.value)
+                .then(() => {
+                    /* refresh admin list */
+                    getAdminListAsync()
+                })
+
+            isEditing.value = false;
+            editingAdmin.value = defaultEditingAdmin;
+        }
+    })
 }
 
 const deleteAdminAsync = async (user: User) => {
     try {
         await deleteAdmin(user.userid);
-        messge.success('删除成功');
+        message.success('删除成功');
     } catch (e: any) {
-        handleError(e, messge, router);
+        handleError(e, message, router);
     }
 }
 
@@ -97,15 +117,15 @@ const doDeleteAdmin = () => {
     if (editingAdmin.value.userid === defaultEditingAdmin.userid) return;
     /* deleting superAdmin */
     if (editingAdmin.value.userid === 1) {
-        messge.error('不能删除超级管理员');
+        message.error('不能删除超级管理员');
         return;
     }
 
     deleteAdminAsync(editingAdmin.value)
-    .then(()=>{   
-        /* refresh admin list */
-        getAdminListAsync()
-    })
+        .then(() => {
+            /* refresh admin list */
+            getAdminListAsync()
+        })
 
     isEditing.value = false;
     editingAdmin.value = defaultEditingAdmin;
@@ -124,9 +144,9 @@ const addAdminAsync = async (user: User) => {
             if (user[key] === null) user[key] = '';
         })
         await addAdmin(user);
-        messge.success('添加管理员 ' + user.userName + ' 成功');
+        message.success('添加管理员 ' + user.userName + ' 成功');
     } catch (e: any) {
-        handleError(e, messge, router, '添加管理员失败（用户不存在或已经是管理员）');
+        handleError(e, message, router, '添加管理员失败（用户不存在或已经是管理员）');
     }
 }
 
@@ -142,13 +162,15 @@ const doAddAdmin = async () => {
                 addingAdmin.value = user;
                 console.log(user);
             } catch (e: any) {
-                handleError(e, messge, router, '获取用户信息失败');
+                handleError(e, message, router, '获取用户信息失败');
             }
         } else {
             /* reset state and return */
-            messge.error('请输入正确的ID');
+            message.error('请输入正确的ID');
             isAdding.value = false;
             addingAdmin.value = defaultEditingAdmin;
+            addAdminInput.value = '';
+            addAdminInputLoading.value = false;
             return;
         }
     }
@@ -159,42 +181,15 @@ const doAddAdmin = async () => {
     /* reset state */
     isAdding.value = false;
     addingAdmin.value = defaultEditingAdmin;
+    addAdminInput.value = '';
+    addAdminInputLoading.value = false;
 
     /* trigger update */
     getAdminListAsync();
 }
 
 /* search */
-const _temp: User[] = [{
-    userid: 1,
-    userName: '超级管理员',
-    studentId: '2000011100',
-    phoneNumber: '13000000000',
-    department: '超级管理员',
-    email: '12f23eddde@no-reply.github.com',
-    identity: '超级管理员'
-},
-{
-    userid: 2,
-    userName: '蛤蛤',
-    studentId: '11221',
-    phoneNumber: '103301',
-    department: '2022100',
-    email: '1700029@1.com',
-    identity: '哈哈'
-},
-{
-    userid: 4,
-    userName: '草草',
-    studentId: '1800012020',
-    phoneNumber: '1771771771',
-    department: '200002000',
-    email: '1700001799@1.com',
-    identity: '草草'
-}]
-
-const volunteerIDs: Ref<Number[]> = ref([1, 2]);
-const volunteerList: Ref<User[]> = ref(_temp);
+const volunteerList: Ref<User[]> = ref([]);
 
 const getVolunteerListAsync = async () => {
     try {
@@ -202,7 +197,7 @@ const getVolunteerListAsync = async () => {
         console.log('volunteer list refreshed', list);
         volunteerList.value = list;
     } catch (e: any) {
-        handleError(e, messge, router);
+        handleError(e, message, router);
     }
 }
 
@@ -223,7 +218,14 @@ const buildVolunteerIndex = async () => {
 }
 
 /* get volunteer list on setup */
-buildVolunteerIndex();
+const doShowAddAdminInput = () => {
+    isAdding.value = true;
+    addingAdmin.value = defaultEditingAdmin;
+    /* lazy load here */
+    if (volunteerList.value.length === 0) {
+        buildVolunteerIndex();
+    }
+}
 
 /* might be slow */
 const searchOptions = computed(() => {
@@ -334,41 +336,73 @@ const columns = [
     }
 ]
 
-const columnsRef = ref(columns)
-const handleSorterChange = (sorter: any) => {
-    columnsRef.value.forEach((column) => {
-        /** column.sortOrder !== undefined means it is uncontrolled */
-        console.log(sorter)
-        if (column.sortOrder === undefined) return
-        if (!sorter) {
-            column.sortOrder = false
-            return
+const formRef = ref(null);
+const formRules = {
+    userName: {
+        required: true,
+        message: '请输入姓名',
+        trigger: 'blur'
+    },
+    studentId: [
+        {
+            required: true,
+            message: '请输入学号',
+            trigger: 'blur'
+        },
+        {
+            pattern: /^\d{10}$/,
+            message: '请输入10位数字学号',
+            trigger: 'blur'
         }
-        if (column.key === sorter.columnKey) column.sortOrder = sorter.order
-        else column.sortOrder = false
-    })
-}
+    ],
+    phoneNumber: [
+        {
+            required: true,
+            message: '请输入学号',
+            trigger: 'blur'
+        },
+        {
+            pattern: /^1[3-9]\d{9}$/,
+            message: '请输入正确的中国大陆手机号',
+            trigger: 'blur'
+        }
+    ],
+    email: {
+        type: 'email',
+        message: '请输入正确的邮箱地址',
+        trigger: 'blur'
+    }
+};
 
 </script>
 
 <template>
-
     <!-- add -->
     <div class="admin-header">
-        <div class="flex flex-col justify-center align-center">
-            <n-text>
-                管理员列表
-            </n-text>
-            </div>
-        <div class="add-admin-input">
-            <n-button v-if="!isAdding" @click="isAdding = true" type="primary" class="square-btn">
-                <n-icon size="18">
-                    <add-outline />
+        <div v-if="hideText && isAdding" />
+        <div v-else class="admin-logo flex items-center">
+            <n-h3 prefix="bar" align-text class="logo-text flex items-center ml-2">
+                <n-icon class="admin-icon" size="20">
+                    <people-outline />
                 </n-icon>
+                管理员列表
+            </n-h3>
+        </div>
+
+        <div class="add-admin-input">
+            <n-button v-if="!isAdding" @click="doShowAddAdminInput" type="primary">
+                <n-icon size="18" class="mr-1">
+                    <add-outline />
+                </n-icon>添加管理员
             </n-button>
 
-            <div v-else key=1 class="flex">
-                <n-button @click="isAdding = false; addAdminInput=''" type="error" class="rounded-r-none square-btn">
+            <div v-else key="1" class="flex">
+                <n-button
+                    @click="isAdding = false; addAdminInput = ''"
+                    type="error"
+                    class="rounded-r-none square-btn"
+                    :disabled="addAdminInputLoading"
+                >
                     <n-icon size="18">
                         <close-outline />
                     </n-icon>
@@ -379,8 +413,14 @@ const handleSorterChange = (sorter: any) => {
                     :options="searchOptions"
                     :on-select="onSearchSelect"
                     placeholder="输入用户ID, 或用姓名/学号查找"
+                    @blur="isAdding = false"
                 />
-                <n-button @click="doAddAdmin" type="primary" class="rounded-l-none square-btn">
+                <n-button
+                    @click="doAddAdmin"
+                    type="primary"
+                    class="rounded-l-none square-btn"
+                    :disabled="addAdminInputLoading"
+                >
                     <n-icon size="18">
                         <checkmark-outline />
                     </n-icon>
@@ -388,8 +428,6 @@ const handleSorterChange = (sorter: any) => {
             </div>
         </div>
     </div>
-
-    
 
     <!-- table -->
     <div class="table-container">
@@ -399,7 +437,6 @@ const handleSorterChange = (sorter: any) => {
             :data="adminList"
             :loading="adminLoading"
             :scroll-x="1000"
-            @update:sorter="handleSorterChange"
             striped
         />
     </div>
@@ -407,27 +444,27 @@ const handleSorterChange = (sorter: any) => {
     <!-- editDrawer -->
     <n-drawer placement="right" :auto-focus="false" v-model:show="isEditing" close-on-esc>
         <n-drawer-content title="编辑管理员">
-            <n-form ref="formRef" :model="editingAdmin">
+            <n-form ref="formRef" :model="editingAdmin" :rules="formRules">
                 <n-form-item label="ID" path="userid">
-                    <n-input :disabled="true" :value="userIdComputed" />
+                    <n-input :disabled="true" :value="userIdComputed" placeholder="-1"/>
                 </n-form-item>
                 <n-form-item label="姓名" path="userName">
-                    <n-input v-model:value="editingAdmin.userName" />
+                    <n-input v-model:value="editingAdmin.userName" placeholder="茨菇"/>
                 </n-form-item>
                 <n-form-item label="学号" path="confirmPassword">
-                    <n-input v-model:value="editingAdmin.studentId" />
+                    <n-input v-model:value="editingAdmin.studentId" placeholder="1800011100"/>
                 </n-form-item>
                 <n-form-item label="手机" path="phoneNumber">
-                    <n-input v-model:value="editingAdmin.phoneNumber" />
+                    <n-input v-model:value="editingAdmin.phoneNumber" placeholder="1300000000"/>
                 </n-form-item>
                 <n-form-item label="邮箱" path="email">
-                    <n-input v-model:value="editingAdmin.email" />
+                    <n-input v-model:value="editingAdmin.email" placeholder="tsugu@kinami.cc"/>
                 </n-form-item>
                 <n-form-item label="身份" path="identity">
-                    <n-input v-model:value="editingAdmin.identity" />
+                    <n-input v-model:value="editingAdmin.identity" placeholder="学生"/>
                 </n-form-item>
                 <n-form-item label="部门" path="department">
-                    <n-input v-model:value="editingAdmin.department" />
+                    <n-input v-model:value="editingAdmin.department" placeholder="信科"/>
                 </n-form-item>
                 <n-button @click="doSubmitAdmin" class="drawer-btn" type="success">提交</n-button>
             </n-form>
@@ -464,13 +501,33 @@ const handleSorterChange = (sorter: any) => {
 }
 
 .admin-header {
-    @apply flex justify-end;
+    @apply flex justify-between items-center;
 }
+
+.admin-logo {
+    margin: 15px;
+    flex: none;
+}
+
+.admin-icon {
+    @apply mx-2;
+}
+
+/* @media screen and (max-width: 480px) {
+    .admin-icon {
+        @apply ml-1 mr-0;
+    }
+} */
 </style>
 
-<style> /* Overriding styles */
+<style>
+/* Overriding styles */
 .add-admin-input .n-input__border,
-.add-admin-input .n-input__state-border{
+.add-admin-input .n-input__state-border {
     @apply rounded-none;
+}
+
+.logo-text {
+    @apply my-0;
 }
 </style>
