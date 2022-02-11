@@ -5,6 +5,7 @@
 declare module 'vue' {
   export interface GlobalComponents {
     About: typeof import('./components/About.vue')['default']
+    ActivityCard: typeof import('./components/ActivityCard.vue')['default']
     CacheCard: typeof import('./components/OptionPanel/CacheCard.vue')['default']
     Footer: typeof import('./components/Footer.vue')['default']
     Header: typeof import('./components/Header.vue')['default']

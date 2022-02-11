@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useHead } from '@vueuse/head';
 import { useWindowSize } from '@vueuse/core';
-import type { Ref, VNodeChild } from 'vue';
+import type { Ref } from 'vue';
 
 import type { User } from '~/models/user';
 import { deleteAdmin, getAdminList, updateAdmin, addAdmin, getVolunteerList, getUserInfo } from '~/api/user';
@@ -9,14 +9,12 @@ import { deleteAdmin, getAdminList, updateAdmin, addAdmin, getVolunteerList, get
 import { handleError } from '~/composables/error';
 
 import { NDataTable, NButton, NIcon, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NPopconfirm, NAutoComplete, NH3 } from 'naive-ui';
-import type { SelectOption } from 'naive-ui';
 import { useMessage } from 'naive-ui';
 
 import { Edit } from '@vicons/carbon';
 import { AddOutline, CheckmarkOutline, CloseOutline, PeopleOutline } from '@vicons/ionicons5';
 
-import { Index, Document } from 'flexsearch';
-import { messageLight } from 'naive-ui/lib/message/styles';
+import { Document } from 'flexsearch';
 
 useHead({
     title: '管理员 | 修哇修哇'
@@ -87,7 +85,7 @@ const submitAdminInfoAsync = async (user: User) => {
 const doSubmitAdmin = () => {
     if (editingAdmin.value.userid === defaultEditingAdmin.userid) return;
 
-    formRef.value.validate(async (errors) => {
+    formRef.value.validate(async (errors: any) => {
         if (errors) {
             message.error('请检查表单');
             return;
@@ -336,7 +334,7 @@ const columns = [
     }
 ]
 
-const formRef = ref(null);
+const formRef: Ref = ref(null);
 const formRules = {
     userName: {
         required: true,
@@ -513,11 +511,14 @@ const formRules = {
     @apply mx-2;
 }
 
-/* @media screen and (max-width: 480px) {
-    .admin-icon {
-        @apply ml-1 mr-0;
+/* really wide screens */
+@media screen and (min-width: 1250px) {
+    .admin-header,
+    .table-container {
+        width: 80%;
+        margin: auto;
     }
-} */
+}
 </style>
 
 <style>

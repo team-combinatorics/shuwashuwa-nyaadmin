@@ -8,14 +8,15 @@ import { deleteActivity, addActivity, updateActivity, getActivityList, getActivi
 
 import { handleError } from '~/composables/error';
 
-import { NDataTable, NButton, NIcon, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NPopconfirm, NDatePicker, NH3, NDynamicInput, NInputNumber, NSpace } from 'naive-ui';
-import type { SelectOption } from 'naive-ui';
+import { NDataTable, NButton, NIcon, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NPopconfirm, NDatePicker, NH3, NDynamicInput, NInputNumber } from 'naive-ui';
 import { useMessage } from 'naive-ui';
 
 import { formatDate, parseDate, splitTimeSlots } from '~/composables/date';
 
+import ActivityCard from '~/components/ActivityCard.vue';
+
 import { Edit } from '@vicons/carbon';
-import { AddOutline, CheckmarkOutline, CloseOutline, ListOutline } from '@vicons/ionicons5';
+import { AddOutline, ListOutline } from '@vicons/ionicons5';
 
 useHead({
     title: '活动 | 修哇修哇'
@@ -39,6 +40,10 @@ const router = useRouter();
 const activityList: Ref<ActivityInfo[]> = ref([]);
 const activityLoading = ref(false);
 const activityListLoading = ref(false);
+
+const incomingActivityList = computed((): ActivityInfo[] => {
+    return activityList.value.filter(activity => parseDate(activity.endTime) > Date.now());
+})
 
 const getActivityListAsync = async () => {
     if (activityListLoading.value) return;  /* skip repeated requests */
@@ -295,7 +300,14 @@ const columns = [
 </script>
 
 <template>
-    <!-- add -->
+    <!-- activity showcase -->
+    <div class="activity-showcase">
+        <li v-for="item in incomingActivityList" :key="item.id">
+            <activity-card :activity="item" />
+        </li>
+    </div>
+
+    <!-- table header -->
     <div class="activity-header">
         <div class="activity-logo flex items-center">
             <n-h3 prefix="bar" align-text class="logo-text flex items-center ml-2">
@@ -399,7 +411,7 @@ const columns = [
                                 @click="doSplitTimeSlots"
                             >自动分割</n-button>
                         </div>
-                        <!-- ITS A WONDER THIS WORKERS -->
+                        <!-- ITS A WONDER THIS EVEN WORKERS -->
                         <n-dynamic-input
                             v-model:value="editingActivity.timeSlots"
                             :on-create="generateNewTimeSlot"
@@ -509,6 +521,21 @@ const columns = [
 .timeslot-btn .n-button{
     @apply rounded-l-none;
     flex: 1;
+}
+
+.activity-showcase {
+    @apply flex justify-start items-center;
+    width: 100%;
+    overflow: scroll;
+}
+
+/* really wide screens */
+@media screen and (min-width: 1250px) {
+    .activity-header,
+    .table-container {
+        width: 80%;
+        margin: auto;
+    }
 }
 </style>
 

@@ -11,11 +11,13 @@ import { getAdminInfo } from "./user";
 
 export const login: (username: string, password: string) => Promise<string> = async (username, password) => {
     const userStore = useUserStore();
+    const globalStore = useGlobalStore();
     const loginCredential: SALogin = { userName: username, password: password }
 
-    const { backendUrl } = useGlobalStore();
+    const backendUrl = globalStore.backendUrl as string;
+    const url = '/api/super/login';
 
-    const res = await axios.get<CommonResponse>('/api/super/login',
+    const res = await axios.get<CommonResponse>(url,
         { baseURL: backendUrl, params: loginCredential })
 
     if (res?.data.code === 200) {
