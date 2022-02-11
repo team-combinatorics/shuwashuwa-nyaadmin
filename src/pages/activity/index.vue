@@ -13,10 +13,10 @@ import { useMessage } from 'naive-ui';
 
 import { formatDate, parseDate, splitTimeSlots } from '~/composables/date';
 
-import ActivityCard from '~/components/ActivityCard.vue';
-
 import { Edit } from '@vicons/carbon';
 import { AddOutline, ListOutline } from '@vicons/ionicons5';
+
+import ActivityShowcase from '~/components/ActivityShowcase.vue';
 
 useHead({
     title: '活动 | 修哇修哇'
@@ -142,13 +142,20 @@ const submitActivityAsync = async (act: Activity) => {
 }
 
 const doSubmitActivity = () => {
-    submitActivityAsync(editingActivity.value)
-        .then(() => {
-            getActivityListAsync();
-        })
-
-    isEditing.value = false;
-    editingActivity.value = defaultEditingActivity;
+    formRef.value.validate(async (errors: any) => {
+        if (errors) {
+            message.error('请检查表单');
+            return;
+        } 
+        else {
+            submitActivityAsync(editingActivity.value)
+                .then(() => {
+                    getActivityListAsync();
+                })
+            isEditing.value = false;
+            editingActivity.value = defaultEditingActivity;
+        }
+    });
 }
 
 /* timeslots */
@@ -193,8 +200,8 @@ const doSplitTimeSlots = () => {
         return;
     }
     editingActivity.value.timeSlots = splitTimeSlots(
-        editingActivity.value.startTime, 
-        editingActivity.value.endTime, 
+        editingActivity.value.startTime,
+        editingActivity.value.endTime,
         timeSlotInterval.value
     );
 }
@@ -297,45 +304,84 @@ const columns = [
         )
     }
 ]
+
+const formRef: Ref = ref(null);
+const formRules = {
+    activityName: {
+        required: true,
+        message: '请输入名称',
+        trigger: 'blur'
+    },
+    location: {
+        required: true,
+        message: '请输入地点',
+        trigger: 'blur'
+    },
+    startTime: {
+        required: true,
+        message: '请输入开始时间',
+        trigger: 'blur'
+    },
+    endTime: {
+        required: true,
+        message: '请输入结束时间',
+        trigger: 'blur'
+    },
+    timeSlots: {
+        trigger: 'blur',
+        validator: (rule: any, value: any) => {
+            if (value.length === 0) {
+                return new Error('请输入时间段');
+            } else {
+                for (let slot of value) {
+                    if (parseDate(slot.startTime) >= parseDate(slot.endTime)) {
+                        return new Error('时间段不合法');
+                    }
+                }
+            }
+            return Promise.resolve();
+        }
+    },
+};
 </script>
 
 <template>
-    <!-- activity showcase -->
-    <div class="activity-showcase">
-        <li v-for="item in incomingActivityList" :key="item.id">
-            <activity-card :activity="item" />
-        </li>
-    </div>
-
-    <!-- table header -->
-    <div class="activity-header">
-        <div class="activity-logo flex items-center">
-            <n-h3 prefix="bar" align-text class="logo-text flex items-center ml-2">
-                <n-icon class="activity-icon" size="20">
-                    <list-outline />
-                </n-icon>活动列表
-            </n-h3>
+    <div class="page-container">
+        <!-- activity showcase -->
+        <div v-if="incomingActivityList.length > 0">
+            <ActivityShowcase :activities="incomingActivityList"></ActivityShowcase>
         </div>
 
-        <div class="add-activity-input">
-            <n-button :disabled="isEditing" @click="doAddActivity" type="primary">
-                <n-icon size="18" class="mr-1">
-                    <add-outline />
-                </n-icon>添加活动
-            </n-button>
-        </div>
-    </div>
+        <!-- table header -->
+        <div class="activity-header">
+            <div class="activity-logo flex items-center">
+                <n-h3 prefix="bar" align-text class="logo-text flex items-center ml-2">
+                    <n-icon class="activity-icon" size="20">
+                        <list-outline />
+                    </n-icon>活动列表
+                </n-h3>
+            </div>
 
-    <!-- table -->
-    <div class="table-container">
-        <n-data-table
-            ref="table"
-            :columns="columns"
-            :data="activityList"
-            :loading="activityListLoading"
-            :scroll-x="1000"
-            striped
-        />
+            <div class="add-activity-input">
+                <n-button :disabled="isEditing" @click="doAddActivity" type="primary">
+                    <n-icon size="18" class="mr-1">
+                        <add-outline />
+                    </n-icon>添加活动
+                </n-button>
+            </div>
+        </div>
+
+        <!-- table -->
+        <div class="table-container">
+            <n-data-table
+                ref="table"
+                :columns="columns"
+                :data="activityList"
+                :loading="activityListLoading"
+                :scroll-x="1000"
+                striped
+            />
+        </div>
     </div>
 
     <!-- editDrawer -->
@@ -347,7 +393,7 @@ const columns = [
         :width="drawerWidth"
     >
         <n-drawer-content title="编辑活动">
-            <n-form ref="formRef" :model="editingActivity">
+            <n-form ref="formRef" :model="editingActivity" :rules="formRules">
                 <n-form-item v-if="activityIdComputed" label="ID" path="activityId">
                     <n-input
                         :disabled="true"
@@ -355,7 +401,7 @@ const columns = [
                         :loading="activityLoading"
                     />
                 </n-form-item>
-                <n-form-item label="名称" path="userName">
+                <n-form-item label="名称" path="activityName">
                     <n-input
                         v-model:value="editingActivity.activityName"
                         :loading="activityLoading"
@@ -518,35 +564,34 @@ const columns = [
     margin-bottom: 20px;
 }
 
-.timeslot-btn .n-button{
+.timeslot-btn .n-button {
     @apply rounded-l-none;
     flex: 1;
 }
 
 .activity-showcase {
     @apply flex justify-start items-center;
+    list-style-type: none;
     width: 100%;
-    overflow: scroll;
 }
 
 /* really wide screens */
 @media screen and (min-width: 1250px) {
-    .activity-header,
-    .table-container {
+    .page-container {
         width: 80%;
         margin: auto;
     }
 }
 </style>
 
-<style> /* Overriding styles */
+<style>
+/* Overriding styles */
 .add-activity-input .n-input__border,
 .add-activity-input .n-input__state-border {
     @apply rounded-none;
 }
 
-.timeslot-btn .n-input__border
-.timeslot-btn .n-input__state-border {
+.timeslot-btn .n-input__border .timeslot-btn .n-input__state-border {
     @apply rounded-r-none;
 }
 

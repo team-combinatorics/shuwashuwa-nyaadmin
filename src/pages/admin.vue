@@ -531,4 +531,8 @@ const formRules = {
 .logo-text {
     @apply my-0;
 }
+
+.admin-logo .n-h.n-h--prefix-bar::before {
+    background-color: #555;
+}
 </style>
