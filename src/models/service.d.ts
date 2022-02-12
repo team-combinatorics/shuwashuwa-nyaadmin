@@ -70,3 +70,11 @@ export enum ServiceStatus {
     WORKING,
     FINISHED
 }
+
+export interface ServiceAudit {
+    message: string,
+    problemSummary: string,
+    result: boolean,
+    serviceEventId: number,
+    serviceFormId: number,
+}

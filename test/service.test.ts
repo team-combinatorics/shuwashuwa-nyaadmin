@@ -8,7 +8,7 @@ beforeEach(() => {
 })
 
 import {login} from "../src/api/login";
-import {getServiceEventDetail, getServiceEventList} from "../src/api/service";
+import {getServiceEventDetail, getServiceEventList, auditServiceEvent} from "../src/api/service";
 
 
 it("get service list", async ()=>{
@@ -24,4 +24,19 @@ it("get service detail", async ()=>{
     const res = await getServiceEventDetail(lastId);
     console.log(res);
     expect(res).toBeTruthy();
+})
+
+it("audit service", async ()=>{
+    await login("shuwashuwa", "Tsugudaisuki");
+    const list = await getServiceEventList({ status: 1 });
+    const lastId = list[list.length-1].serviceEventId;
+    const act = await getServiceEventDetail(lastId);
+    const res = await auditServiceEvent({
+        message: '测试审核',
+        problemSummary: '测试审核',
+        result: false,
+        serviceEventId: lastId,
+        serviceFormId: act.serviceForms[0].formID
+    });
+    console.log(res);
 })
