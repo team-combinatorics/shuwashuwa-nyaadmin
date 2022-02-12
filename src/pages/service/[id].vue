@@ -7,15 +7,17 @@ import type { TimelineItemProps } from 'naive-ui';
 import { getServiceEventDetail } from '~/api/service';
 import { getUserInfo } from '~/api/user';
 
+import { useGlobalStore } from '~/stores/global';
+
 import { handleError } from '~/composables/error'
 
-import { NTimeline, NTimelineItem, NInput, NFormItem, NIcon, NH3, NSwitch, NImage, NImageGroup } from 'naive-ui';
+import { NTimeline, NTimelineItem, NInput, NFormItem, NIcon, NH3, NSwitch, NImage, NImageGroup, NSpace } from 'naive-ui';
 import { useMessage } from 'naive-ui';
 import { ToolKit } from '@vicons/carbon';
 
 const message = useMessage();
 const router = useRouter();
-
+const globalStore = useGlobalStore();
 const props = defineProps <{id: string}>();
 const idAsNumber = computed((): number => Number(props.id));
 
@@ -65,6 +67,9 @@ const serviceType = computed(() => {
             return 'default';
     }
 });
+
+const imgUrl = (relative_url: string) => globalStore.backendUrl + '/img/' + relative_url
+const thumbUrl = (relative_url: string) => globalStore.backendUrl + '/img/100_' + relative_url
 
 /* timeline */
 const timelineItems = computed(() => {
@@ -200,16 +205,13 @@ const getUserInfoAsync = async (id: number) => {
             </n-form-item>
             <n-form-item label="故障图片">
                 <n-image-group show-toolbar-tooltip>
-                    <n-space>
                     <n-image
+                        v-for="(item, index) in lastServiceForm.imageList"
+                        :key="index"
                         width="100"
-                        src="https://07akioni.oss-cn-beijing.aliyuncs.com/07akioni.jpeg"
+                        :src="thumbUrl(item)"
+                        :preview-src="imgUrl(item)"
                     />
-                    <n-image
-                        width="100"
-                        src="https://gw.alipayobjects.com/zos/antfincdn/aPkFc8Sj7n/method-draw-image.svg"
-                    />
-                    </n-space>
                 </n-image-group>
             </n-form-item>
         </div>
