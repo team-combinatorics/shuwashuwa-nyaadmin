@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { useHead } from '@vueuse/head';
 import { useWindowSize } from '@vueuse/core';
-import type { Ref } from 'vue';
 
+import type { Ref } from 'vue';
 import type { TimeSlot, Activity, ActivityInfo, ActivityQuery } from '~/models/activity';
+import type { SortState } from 'naive-ui/lib/data-table/src/interface';
+
 import { deleteActivity, addActivity, updateActivity, getActivityList, getActivityTimeSlots } from '~/api/activity';
 
 import { handleError } from '~/composables/error';
@@ -17,6 +19,7 @@ import { Edit } from '@vicons/carbon';
 import { AddOutline, ListOutline } from '@vicons/ionicons5';
 
 import ActivityShowcase from '~/components/ActivityShowcase.vue';
+
 
 useHead({
     title: '活动 | 修哇修哇'
@@ -52,6 +55,7 @@ const getActivityListAsync = async () => {
         const list = await getActivityList();
         activityList.value = list;
         console.log('activity list refreshed', list);
+        activityList.value.sort((a, b) => b.id - a.id);
     } catch (e: any) {
         handleError(e, message, router);
     } finally {
@@ -76,7 +80,9 @@ const defaultEditingActivity: Activity = {
 
 const isEditing = ref(false);
 const editingActivity = ref<Activity>(defaultEditingActivity);
-const { startTime, endTime, timeSlots } = toRefs(editingActivity.value);
+// const { startTime, endTime, timeSlots } = toRefs(editingActivity.value);
+const editingActivityUrl = computed(() => '/activity/' + editingActivity.value.activityId);
+const goToActivity = () => router.push(editingActivityUrl.value);
 
 const activityIdComputed = computed(() => {
     if (editingActivity.value.activityId) {
@@ -146,7 +152,7 @@ const doSubmitActivity = () => {
         if (errors) {
             message.error('请检查表单');
             return;
-        } 
+        }
         else {
             submitActivityAsync(editingActivity.value)
                 .then(() => {
@@ -190,7 +196,7 @@ const generateNewTimeSlot = (): TimeSlot => {
 const timeSlotInterval = ref(30);
 
 const doSplitTimeSlots = () => {
-    const interval = parseDate(endTime.value) - parseDate(startTime.value);
+    const interval = parseDate(editingActivity.value.endTime) - parseDate(editingActivity.value.startTime);
     if (interval < timeSlotInterval.value * 60 * 1000) {
         message.error('活动时间小于设定的时间间隔');
         return;
@@ -237,6 +243,40 @@ const doDeleteActivity = () => {
     editingActivity.value = defaultEditingActivity;
 }
 
+/* sort */
+
+const doSort = async (sorter: SortState) => {
+    if (!sorter) {
+        return activityList.value.sort((a, b) => b.id - a.id);
+    }
+    const { columnKey, order } = sorter;
+    if (columnKey === 'id') {
+        if (order === 'ascend') {
+            activityList.value.sort((a, b) => a.id - b.id);
+        } else {
+            activityList.value.sort((a, b) => b.id - a.id);
+        }
+    } else if (columnKey === 'startTime') {
+        if (order === 'ascend') {
+            activityList.value.sort((a, b) => parseDate(a.startTime) - parseDate(b.startTime));
+        } else {
+            activityList.value.sort((a, b) => parseDate(b.startTime) - parseDate(a.startTime));
+        }
+    } else if (columnKey === 'endTime') {
+        if (order === 'ascend') {
+            activityList.value.sort((a, b) => parseDate(a.endTime) - parseDate(b.endTime));
+        } else {
+            activityList.value.sort((a, b) => parseDate(b.endTime) - parseDate(a.endTime));
+        }
+    } else if (columnKey === 'updatedTime') {
+        if (order === 'ascend') {
+            activityList.value.sort((a, b) => parseDate(a.updatedTime) - parseDate(b.updatedTime));
+        } else {
+            activityList.value.sort((a, b) => parseDate(b.updatedTime) - parseDate(a.updatedTime));
+        }
+    }
+}
+
 /* table */
 const columns = [
     {
@@ -244,6 +284,8 @@ const columns = [
         key: 'id',
         fixed: 'left',
         width: '60px',
+        sorter: true,
+        sortOrder: true,
     },
     {
         title: '名称',
@@ -266,21 +308,27 @@ const columns = [
         key: 'startTime',
         ellipsis: {
             tooltip: true
-        }
+        },
+        sorter: true,
+        sortOrder: true,
     },
     {
         title: '结束时间',
         key: 'endTime',
         ellipsis: {
             tooltip: true
-        }
+        },
+        sorter: true,
+        sortOrder: true,
     },
     {
         title: '编辑时间',
         key: 'updatedTime',
         ellipsis: {
             tooltip: true
-        }
+        },
+        sorter: true,
+        sortOrder: true,
     },
     {
         title: '操作',
@@ -379,6 +427,7 @@ const formRules = {
                 :data="activityList"
                 :loading="activityListLoading"
                 :scroll-x="1000"
+                @sorter-change="doSort"
                 striped
             />
         </div>
@@ -504,6 +553,15 @@ const formRules = {
                 </template>
                 确定要删除活动 {{ editingActivity.activityName }} 吗？
             </n-popconfirm>
+
+            <n-button
+                v-if="activityIdComputed"
+                :disabled="!editingActivity.activityName || activityLoading"
+                type="default"
+                class="drawer-btn"
+                @click="goToActivity"
+            >前往活动页</n-button>
+
         </n-drawer-content>
     </n-drawer>
 </template>

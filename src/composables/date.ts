@@ -1,6 +1,9 @@
 import { format } from 'date-fns';
 import { TimeSlot } from '~/models/activity';
 
+import { format as formatTimeAgo } from 'timeago.js';
+import { useTimeAgo, UseTimeAgoMessages } from '@vueuse/core'
+
 /* convert timestamp to YYYY-MM-DD hh:mm:ss */
 export const formatDate = (timestamp: number) => {
     return format(new Date(timestamp), 'yyyy-MM-dd HH:mm:ss');
@@ -44,4 +47,27 @@ export const splitTimeSlots = (start: string, end: string, interval: number) => 
     }
 
     return result;
+}
+
+// const zhCNTimeagoLocale: UseTimeAgoMessages = {
+//     justNow: '刚刚',
+//     past: '{0}前',
+//     future: '{0}后',
+//     second: '秒',
+//     minute: '分钟',
+//     hour: '小时',
+//     day: '天',
+//     week: '周',
+//     month: '月',
+//     year: '年',
+// }
+
+// export const timeAgo = (timestamp: number | Date) => {
+//     return useTimeAgo(timestamp, {
+//         messages: zhCNTimeagoLocale,
+//     });
+// }
+
+export const timeAgo = (timestamp: number | Date) => {
+    return formatTimeAgo(timestamp, 'zh_CN');
 }

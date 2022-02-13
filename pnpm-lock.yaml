@@ -25,6 +25,7 @@ specifiers:
   naive-ui: ^2.24.7
   pinia: ^2.0.9
   pnpm: ^6.28.0
+  timeago.js: ^4.0.2
   typescript: ^4.5.5
   unplugin-auto-import: ^0.5.11
   unplugin-icons: ^0.13.0
@@ -47,6 +48,7 @@ dependencies:
   date-fns: 2.28.0
   flexsearch: 0.7.21
   pinia: 2.0.9_typescript@4.5.5+vue@3.2.29
+  timeago.js: 4.0.2
   vue: 3.2.29
   vue-router: 4.0.12_vue@3.2.29
 
@@ -3322,6 +3324,10 @@ packages:
   /text-table/0.2.0:
     resolution: {integrity: sha1-f17oI66AUgfACvLfSoTsP8+lcLQ=}
     dev: true
+
+  /timeago.js/4.0.2:
+    resolution: {integrity: sha512-a7wPxPdVlQL7lqvitHGGRsofhdwtkoSXPGATFuSOA2i1ZNQEPLrGnj68vOp2sOJTCFAQVXPeNMX/GctBaO9L2w==}
+    dev: false
 
   /tinypool/0.1.1:
     resolution: {integrity: sha512-sW2fQZ2BRb/GX5v55NkHiTrbMLx0eX0xNpP+VGhOe2f7Oo04+LeClDyM19zCE/WCy7jJ8kzIJ0Ojrxj3UhN9Sg==}

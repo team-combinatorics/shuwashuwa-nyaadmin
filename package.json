@@ -15,6 +15,7 @@
     "date-fns": "^2.28.0",
     "flexsearch": "^0.7.21",
     "pinia": "^2.0.9",
+    "timeago.js": "^4.0.2",
     "vue": "^3.2.29",
     "vue-router": "^4.0.12"
   },
@@ -24,8 +25,8 @@
     "@types/markdown-it-link-attributes": "^3.0.1",
     "@typescript-eslint/eslint-plugin": "^5.10.1",
     "@typescript-eslint/parser": "^5.10.1",
-    "@vicons/ionicons5": "^0.11.0",
     "@vicons/carbon": "^0.12.0",
+    "@vicons/ionicons5": "^0.11.0",
     "@vitejs/plugin-vue": "^2.1.0",
     "@vue/test-utils": "^2.0.0-rc.18",
     "@vueuse/core": "^7.5.4",
