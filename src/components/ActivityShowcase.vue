@@ -18,7 +18,7 @@ const props = defineProps({
 <template>
     <div class="showcase-header">
         <div class="activity-logo flex items-center">
-            <n-h3 prefix="bar" align-text class="logo-text flex items-center ml-2" type="primary">
+            <n-h3 prefix="bar" align-text class="logo-text flex items-center ml-2">
                 <n-icon class="activity-icon" size="20">
                     <list-outline />
                 </n-icon>进行中活动

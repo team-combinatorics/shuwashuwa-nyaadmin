@@ -84,6 +84,9 @@ const editingActivity = ref<Activity>(defaultEditingActivity);
 const editingActivityUrl = computed(() => '/activity/' + editingActivity.value.activityId);
 const goToActivity = () => router.push(editingActivityUrl.value);
 
+const serviceUrl = computed(() => '/service?activity=' + editingActivity.value.activityId);
+const goToService = () => router.push(serviceUrl.value);
+
 const activityIdComputed = computed(() => {
     if (editingActivity.value.activityId) {
         return editingActivity.value.activityId.toString();
@@ -427,7 +430,7 @@ const formRules = {
                 :data="activityList"
                 :loading="activityListLoading"
                 :scroll-x="1000"
-                @sorter-change="doSort"
+                @update-sorter="doSort"
                 striped
             />
         </div>
@@ -561,6 +564,14 @@ const formRules = {
                 class="drawer-btn"
                 @click="goToActivity"
             >前往活动页</n-button>
+
+            <n-button
+                v-if="activityIdComputed"
+                :disabled="!editingActivity.activityName || activityLoading"
+                type="default"
+                class="drawer-btn"
+                @click="goToService"
+            >查看维修单</n-button>
 
         </n-drawer-content>
     </n-drawer>

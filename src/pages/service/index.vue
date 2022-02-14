@@ -3,17 +3,16 @@
 
 import type { Ref } from 'vue';
 
-import type { ServiceQuery, ServiceEvent } from '~/models/service';
+import type { ServiceQuery, ServiceEvent, ServiceEventDetail } from '~/models/service';
 import type { ActivityInfo } from '~/models/activity';
 import type { User } from '~/models/user';
 
 import { getActivityList } from '~/api/activity';
 
-import { NForm, NFormItem, NSwitch, NSelect, NDatePicker, NInput, NButton, NDataTable } from 'naive-ui';
+import { NForm, NFormItem, NSwitch, NSelect, NDatePicker, NInput, NButton, NDataTable, NIcon, NH3, NText, NCollapseTransition, NDrawer } from 'naive-ui';
 
 import { handleError } from '~/composables/error';
-import { groupBy } from '~/composables/utils';
-import { getServiceEventList } from '~/api/service';
+import { getServiceEventList, getServiceEventDetail } from '~/api/service';
 
 import { useHead } from '@vueuse/head';
 import { useMessage } from 'naive-ui';
@@ -21,11 +20,29 @@ import { getVolunteerList } from '~/api/user';
 
 import { parseDate, formatDate } from '~/composables/date';
 
+import { SearchOutline, CloseOutline, FilterOutline } from '@vicons/ionicons5';
+import { Information as InformationIcon, Edit as EditIcon, ToolKit as ToolKitIcon, Close as CloseIcon } from '@vicons/carbon';
+
+import ServiceDrawer from '~/components/ServiceDrawer.vue';
+
+import { useWindowSize } from '@vueuse/core';
+
 const router = useRouter();
 const message = useMessage();
 
 useHead({
     title: '维修单 | 修哇修哇'
+})
+
+const windowSize = useWindowSize();
+
+const useMobileLayout = computed(() => {
+    return windowSize.width.value <= 705;
+})
+
+const drawerWidth = computed(() => {
+    // make it possible to close
+    return useMobileLayout.value ? windowSize.width.value * 0.85 : 600;
 })
 
 const activityLoading = ref(false);
@@ -53,10 +70,11 @@ const getIncomingActivitiesAsync = async () => {
     }
 }
 
-const serviceQuery: Ref <ServiceQuery> = ref({
+const serviceQuery: Ref<ServiceQuery> = ref({
     closed: false,
     draft: false,
 });
+const showServiceQuery = ref(false);
 
 const volunteerLoading = ref(false);
 const volunteerList: Ref<User[]> = ref([]);
@@ -66,6 +84,38 @@ const volunteerOptions = computed(() => {
         value: volunteer.userid
     }));
 });
+
+const statusLabels = [
+    '编辑中',
+    '待审核',
+    '待签到',
+    '待接单',
+    '维修中',
+    '已完成',
+];
+
+const statusOptions = statusLabels.map((label, index) => ({
+    label,
+    value: index
+}));
+
+const statusColorType = (status: number) => {
+    switch (status) {
+        case 0:
+            return 'info';
+        case 5:
+            return 'error';
+        case 1:
+        case 2:
+            return 'warning';
+        case 3:
+        case 4:
+            return 'success';
+        default:
+            console.log('undefined service status', status);
+            return 'default';
+    }
+}
 
 const getVolunteerListAsync = async () => {
     volunteerLoading.value = true;
@@ -81,7 +131,7 @@ const getVolunteerListAsync = async () => {
 }
 
 const getDateRange = computed(() => {
-    if(!serviceQuery.value.createLower || !serviceQuery.value.createUpper) {
+    if (!serviceQuery.value.createLower || !serviceQuery.value.createUpper) {
         return null;
     }
     const start = parseDate(serviceQuery.value.createLower);
@@ -90,7 +140,7 @@ const getDateRange = computed(() => {
 });
 
 const setDateRange = (val: number[] | null) => {
-    if(val === null || val.length !== 2) {
+    if (val === null || val.length !== 2) {
         serviceQuery.value.createLower = undefined;
         serviceQuery.value.createUpper = undefined;
         return;
@@ -104,21 +154,22 @@ const setDateRange = (val: number[] | null) => {
 /* read initial query from route params */
 
 const readQueryFromObj = (obj: any) => {
-    if ('status' in Object.keys(obj)) { serviceQuery.value.status = obj.status; }
-    if ('activity' in Object.keys(obj)) { serviceQuery.value.activity = obj.activity; }
-    if ('client'  in Object.keys(obj)) { serviceQuery.value.client = obj.client; }
-    if ('closed'  in Object.keys(obj)) { serviceQuery.value.closed = obj.closed; }
-    if ('draft' in Object.keys(obj)) { serviceQuery.value.draft = obj.draft; }
-    if ('volunteer' in Object.keys(obj)) { serviceQuery.value.volunteer = obj.volunteer;}
-    if ('createLower' in Object.keys(obj)) { serviceQuery.value.createLower = obj.createLower; }
-    if ('createUpper' in Object.keys(obj)) { serviceQuery.value.createUpper = obj.createUpper;}
+    console.log('read query from obj', obj);
+    if (Object.keys(obj).includes('activity')) { serviceQuery.value.activity = Number(obj.activity); }
+    if (Object.keys(obj).includes('status')) { serviceQuery.value.status = Number(obj.status); }
+    if (Object.keys(obj).includes('createLower')) { serviceQuery.value.createLower = obj.createLower; }
+    if (Object.keys(obj).includes('createUpper')) { serviceQuery.value.createUpper = obj.createUpper; }
+    if (Object.keys(obj).includes('draft')) { serviceQuery.value.draft = Boolean(obj.draft); }
+    if (Object.keys(obj).includes('closed')) { serviceQuery.value.closed = Boolean(obj.closed); }
+    if (Object.keys(obj).includes('client')) { serviceQuery.value.client = Number(obj.client); }
+    if (Object.keys(obj).includes('volunteer')) { serviceQuery.value.volunteer = Number(obj.volunteer); }
 }
-    
-if(router.currentRoute.value.query){
+
+if (router.currentRoute.value.query) {
     readQueryFromObj(router.currentRoute.value.query);
 }
 
-const serviceList: Ref <ServiceEvent[]> = ref([]);
+const serviceList: Ref<ServiceEvent[]> = ref([]);
 const serviceListLoading = ref(false);
 
 const getServiceListAsync = async (q: ServiceQuery) => {
@@ -142,7 +193,7 @@ const tableRef = ref(null as any);
 
 const columns = [
     {
-        title: '单号',
+        title: 'ID',
         key: 'serviceEventId',
         fixed: 'left',
         width: '60px',
@@ -150,50 +201,102 @@ const columns = [
     {
         title: '状态',
         key: 'status',
+        fixed: 'left',
+        width: '80px',
+        render: (row: ServiceEvent) => {
+            return h(NText, {
+                type: statusColorType(row.status),
+            }, () => statusLabels[row.status]);
+        }
     },
     {
         title: '活动',
         key: 'activityName',
+        ellipsis: {
+            tooltip: true
+        }
     },
     {
         title: '电脑型号',
         key: 'computerModel',
+        ellipsis: {
+            tooltip: true
+        }
     },
     {
         title: '问题描述',
         key: 'problemSummary',
+        ellipsis: {
+            tooltip: true
+        },
     },
     {
         title: '志愿者',
         key: 'volunteerName',
+        width: '100px',
     },
     {
         title: '客户',
         key: 'userName',
+        width: '100px',
+    },
+    {
+        title: '时间段',
+        key: 'timeslot',
+        width: '160px',
+        render: (row: ServiceEvent) => {
+            return h(NText, {}, () => row.startTime ? row.startTime?.split(' ')[1] + ' → ' + row.endTime?.split(' ')[1] : '');
+        }
     },
     {
         title: '创建时间',
         key: 'createTime',
+        width: '160px',
     },
     {
         title: '操作',
         key: 'action',
-        width: '100px',
+        fixed: 'right',
+        width: '60px',
+        render: (row: ServiceEvent) => h(
+            NButton,
+            {
+                strong: true,
+                tertiary: true,
+                size: 'small',
+                type: row.status === 1 ? 'primary' : 'default',
+                onClick: async () => {
+                    await getServiceEventDetailAsync(row.serviceEventId);
+                    showDrawer.value = true;
+                    // message.info('编辑服务' + row.serviceEventId);
+                }
+            },
+            {
+                icon: () => h(NIcon,
+                    {},
+                    { default: () => row.status === 1 ? h(EditIcon) : h(InformationIcon) }
+                )
+            }
+        )
     },
-
-    // activityName: string,
-    // closed: boolean,
-    // computerModel: string,
-    // createTime: string,
-    // draft: boolean,
-    // endTime: string,
-    // problemSummary: string,
-    // serviceEventId: number,
-    // startTime: string,
-    // status: ServiceStatus,
-    // userName: string,
-    // volunteerName: string
 ];
+
+/* drawer */
+const editingService: Ref<ServiceEventDetail | null> = ref(null);
+const showDrawer = ref(false);
+
+const getServiceEventDetailAsync = async (id: number) => {
+    serviceListLoading.value = true;
+    try {
+        const detail = await getServiceEventDetail(id);
+        editingService.value = detail;
+        console.log('service detail refreshed', detail);
+    } catch (e: any) {
+        handleError(e, message, router);
+    } finally {
+        serviceListLoading.value = false;
+    }
+}
 
 const setupTask = async () => {
     getIncomingActivitiesAsync();
@@ -207,70 +310,171 @@ setupTask();
 </script>
 
 <template>
-    <div class="query-form">
-        <n-form inline ref="formRef" :value="serviceQuery" >
+    <section>
+        <n-collapse-transition :show="showServiceQuery" class="service-header">
+            <n-form inline ref="formRef" :value="serviceQuery" class="query-form">
+                <n-form-item label="状态" path="status">
+                    <n-select
+                        v-model:value="serviceQuery.status"
+                        :options="statusOptions"
+                        placeholder="请选择"
+                        filterable
+                        clearable
+                    />
+                </n-form-item>
+                <n-form-item label="活动" path="activity">
+                    <n-select
+                        v-model:value="serviceQuery.activity"
+                        :options="activityOptions"
+                        :loading="activityLoading"
+                        placeholder="请选择/通过名称查询"
+                        filterable
+                        clearable
+                    />
+                </n-form-item>
+                <n-form-item label="志愿者" path="volunteer">
+                    <n-select
+                        v-model:value="serviceQuery.volunteer"
+                        :options="volunteerOptions"
+                        :loading="volunteerLoading"
+                        placeholder="请选择/通过姓名查询"
+                        filterable
+                        clearable
+                    />
+                </n-form-item>
+                <n-form-item label="客户" path="client">
+                    <n-input
+                        :value="serviceQuery.client ? String(serviceQuery.client) : ''"
+                        @input="(v) => serviceQuery.client = v ? Number(v) : undefined"
+                        clearable
+                        placeholder="请输入用户ID"
+                    />
+                </n-form-item>
+                <n-form-item label="创建时间" path="createLower">
+                    <n-date-picker
+                        type="daterange"
+                        clearable
+                        placeholder="填写时间段"
+                        input-readonly
+                        :value="(getDateRange as any)"
+                        :disabled="activityLoading"
+                        :on-update:value="(v) => setDateRange(v)"
+                    />
+                </n-form-item>
+                <n-form-item label="草稿" path="draft">
+                    <n-switch v-model:value="serviceQuery.draft" />
+                </n-form-item>
+                <n-form-item label="已删除" path="closed">
+                    <n-switch v-model:value="serviceQuery.closed" />
+                </n-form-item>
+            </n-form>
+        </n-collapse-transition>
+    </section>
 
-            <n-form-item label="活动" path="activity">
-                <n-select
-                    v-model:value="serviceQuery.activity"
-                    :options="activityOptions"
-                    :loading="activityLoading"
-                    placeholder="请选择/通过名称查询"
-                    filterable
-                    clearable
-                />
-            </n-form-item>
-            <n-form-item label="志愿者" path="volunteer">
-                <n-select
-                    v-model:value="serviceQuery.volunteer"
-                    :options="volunteerOptions"
-                    :loading="volunteerLoading"
-                    placeholder="请选择/通过姓名查询"
-                    filterable
-                    clearable
-                />
-            </n-form-item>
-            <n-form-item label="客户" path="client">
-                <n-input
-                    :value="serviceQuery.client? String(serviceQuery.client) : ''"
-                    @input="(v) => serviceQuery.client = v? Number(v) : undefined"
-                    clearable
-                    placeholder="请输入用户ID"
-                />
-            </n-form-item>
-            <n-form-item label="创建时间" path="createLower">
-                <n-date-picker
-                    type="daterange"
-                    clearable
-                    placeholder="填写时间段"
-                    input-readonly
-                    :value="getDateRange"
-                    :disabled="activityLoading"
-                    :on-update:value="(v) => setDateRange(v)"
-                />
-            </n-form-item>
-            <n-form-item label="草稿" path="draft">
-                <n-switch v-model:value="serviceQuery.draft"/>
-            </n-form-item>
-            <n-form-item label="已删除" path="closed">
-                <n-switch v-model:value="serviceQuery.closed"/>
-            </n-form-item>
+    <section class="service-table">
+        <div class="table-header">
+            <n-h3 prefix="bar" align-text class="table-header-text">
+                <n-icon class="mx-2" size="20">
+                    <tool-kit-icon />
+                </n-icon>维修单列表
+            </n-h3>
 
-            <n-button type="primary" @click="doServiceListRefresh">查询</n-button>
-        </n-form>
-    </div>
-    <div class="service-table">
-                <!-- table -->
+            <div v-if="showServiceQuery" class="table-header-btn">
+                <n-button type="error" @click="showServiceQuery = false" class="query-btn">
+                    <template #icon>
+                        <n-icon>
+                            <close-outline />
+                        </n-icon>
+                    </template>
+                    关闭
+                </n-button>
+                <n-button type="primary" @click="doServiceListRefresh" class="query-btn">
+                    <template #icon>
+                        <n-icon>
+                            <search-outline />
+                        </n-icon>
+                    </template>
+                    查询
+                </n-button>
+            </div>
+
+            <div v-else class="table-header-btn">
+                <n-button type="primary" @click="showServiceQuery = true" class="query-btn">
+                    <template #icon>
+                        <n-icon>
+                            <filter-outline />
+                        </n-icon>
+                    </template>
+                    筛选
+                </n-button>
+            </div>
+        </div>
+
         <div class="table-container">
             <n-data-table
                 ref="tableRef"
-                :columns="columns"
+                :columns="(columns as any)"
                 :data="serviceList"
                 :loading="serviceListLoading"
                 :scroll-x="1000"
-                @sorter-change="doSort"
                 striped
             />
         </div>
-    </div>
+    </section>
+
+    <ServiceDrawer
+        v-if="editingService !== null"
+        :service="editingService"
+        v-model:show="showDrawer"
+    />
 </template>
+
+<style scoped>
+/* local styles */
+.service-header {
+    @apply m-5 flex justify-center;
+}
+
+.query-form {
+    @apply flex justify-center items-center;
+    flex-wrap: wrap;
+}
+
+/* really wide screens */
+@media screen and (min-width: 1250px) {
+    .service-table {
+        width: 80%;
+        margin: auto;
+    }
+}
+</style>
+
+<style>
+/* global styles */
+.table-header {
+    @apply flex justify-between items-center;
+}
+
+.n-h.table-header-text.n-h--prefix-bar::before {
+    background-color: #555;
+}
+
+.n-h:first-child.table-header-text {
+    @apply flex items-center ml-2;
+    margin: 15px;
+    margin-left: 23px;
+    flex: none;
+}
+
+.table-header-btn {
+    @apply flex items-center;
+    margin: 15px;
+    gap: 15px;
+    flex: none;
+}
+
+.drawer-btn {
+    width: 100%;
+    text-align: center;
+}
+</style>
