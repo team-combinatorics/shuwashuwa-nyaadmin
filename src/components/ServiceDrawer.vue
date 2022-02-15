@@ -324,7 +324,7 @@ const messageRules = {
                     <n-input :value="lastServiceForm.graphicsModel" readonly/>
                 </n-form-item>
                 <n-form-item label="购买年月">
-                    <n-input :value="lastServiceForm.boughtTime.substring(0, lastServiceForm.boughtTime.lastIndexOf('-'))" readonly/>
+                    <n-input :value="lastServiceForm.boughtTime ? lastServiceForm.boughtTime.substring(0, lastServiceForm.boughtTime.lastIndexOf('-')): ''" readonly/>
                 </n-form-item>
                 <n-form-item label="在保修期内">
                     <n-switch :value="lastServiceForm.underWarranty" disabled />

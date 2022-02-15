@@ -22,7 +22,7 @@ import { useThemeVars } from 'naive-ui';
 const themeVars = useThemeVars()
 
 useHead({
-    title: '登录 | 修哇修哇'
+  title: '登录 | 修哇修哇'
 })
 
 /* dark mode */
@@ -55,7 +55,7 @@ const doLogin = () => {
         // delay 600ms to make sure the message is shown
         setTimeout(() => {
           // if previous page is login page, redirect to home page
-          if (router.currentRoute.name === 'login') {
+          if (router.currentRoute.value.name === 'login') {
             router.push('/');
           }
           // else redirect to previous page
@@ -119,18 +119,10 @@ const doLogin = () => {
         </form>
 
         <div class="flex flex-col justify-center items-center" v-else>
-          <n-radio-group name="envselector" class="my-2.5 text-center w-full">
-            <n-radio-button
-              value="prod"
-              :checked="globalStore.env == 'prod'"
-              @click="setProdUrl"
-            >生产环境</n-radio-button>
-            <n-radio-button value="dev" :checked="globalStore.env == 'dev'" @click="setDevUrl">测试环境</n-radio-button>
-            <n-radio-button
-              value="custom"
-              :checked="globalStore.env == 'custom'"
-              @click="setCustomState"
-            >自定义</n-radio-button>
+          <n-radio-group name="envselector" class="my-2.5 text-center w-full" :value="globalStore.env">
+            <n-radio-button value="prod" @click="setProdUrl">生产环境</n-radio-button>
+            <n-radio-button value="dev" @click="setDevUrl">测试环境</n-radio-button>
+            <n-radio-button value="custom" @click="setCustomState">自定义</n-radio-button>
           </n-radio-group>
 
           <n-input

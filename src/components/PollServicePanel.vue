@@ -113,8 +113,12 @@ const updateWorkingServices = async () => {
     pollIndicator.value = (pollIndicator.value + 1) % 60;
 }
 
+/* update on setup */
+updateWorkingServices();
 /* run updateWorkingServices() every N seconds */
-setInterval(updateWorkingServices, props.pollInterval * 1000);
+const timerId = setInterval(updateWorkingServices, props.pollInterval * 1000);
+/* cancel timer when component unmounts */
+onBeforeUnmount(() => clearInterval(timerId));
 
 </script>
 

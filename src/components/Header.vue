@@ -9,7 +9,7 @@ import { RouterLink } from 'vue-router';
 import { useUserStore } from '~/stores/user';
 import { useRouter } from 'vue-router';
 
-import { HomeOutline, PeopleOutline, ListOutline, SettingsOutline, LogOutOutline, StatsChartOutline } from '@vicons/ionicons5';
+import { HomeOutline, PeopleOutline, ListOutline, SettingsOutline, LogOutOutline } from '@vicons/ionicons5';
 import { ToolKit, ChartRiver } from '@vicons/carbon';
 
 import OptionPanel from './OptionPanel/index.vue';
@@ -61,12 +61,15 @@ const renderRouterLink = (to: string, title: string) => {
 }
 
 // default value is current route
-const currentRouteName = router.currentRoute.value.name as string;
+const currentRouteName = computed(() => {
+    console.log(router.currentRoute.value);
+    return router.currentRoute.value.name as string
+});
 
 const navOptions = [
     {
         label: renderRouterLink('/', '首页'),
-        key: 'home',
+        key: 'index',
         icon: renderIcon(HomeOutline),
     },
     {
@@ -112,7 +115,7 @@ const doShowAbout = () => {
         <About v-model:show="showAbout"/>
 
         <!-- navbar -->
-        <n-menu :options="navOptions" :current-name="currentRouteName" class="header-nav"/>
+        <n-menu :options="navOptions" :value="currentRouteName" class="header-nav"/>
 
         <!-- buttons -->
         <div class="header-btn-container">

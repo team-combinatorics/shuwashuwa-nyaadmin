@@ -21,11 +21,13 @@ import { getVolunteerList } from '~/api/user';
 import { parseDate, formatDate } from '~/composables/date';
 
 import { SearchOutline, CloseOutline, FilterOutline } from '@vicons/ionicons5';
-import { Information as InformationIcon, Edit as EditIcon, ToolKit as ToolKitIcon, Close as CloseIcon } from '@vicons/carbon';
+import { Information as InformationIcon, Edit as EditIcon, ToolKit as ToolKitIcon } from '@vicons/carbon';
 
 import ServiceDrawer from '~/components/ServiceDrawer.vue';
 
 import { useWindowSize } from '@vueuse/core';
+
+import { generateServiceExcel } from '~/composables/excel-generator';
 
 const router = useRouter();
 const message = useMessage();
@@ -151,23 +153,7 @@ const setDateRange = (val: number[] | null) => {
     console.log(serviceQuery.value);
 }
 
-/* read initial query from route params */
-
-const readQueryFromObj = (obj: any) => {
-    console.log('read query from obj', obj);
-    if (Object.keys(obj).includes('activity')) { serviceQuery.value.activity = Number(obj.activity); }
-    if (Object.keys(obj).includes('status')) { serviceQuery.value.status = Number(obj.status); }
-    if (Object.keys(obj).includes('createLower')) { serviceQuery.value.createLower = obj.createLower; }
-    if (Object.keys(obj).includes('createUpper')) { serviceQuery.value.createUpper = obj.createUpper; }
-    if (Object.keys(obj).includes('draft')) { serviceQuery.value.draft = Boolean(obj.draft); }
-    if (Object.keys(obj).includes('closed')) { serviceQuery.value.closed = Boolean(obj.closed); }
-    if (Object.keys(obj).includes('client')) { serviceQuery.value.client = Number(obj.client); }
-    if (Object.keys(obj).includes('volunteer')) { serviceQuery.value.volunteer = Number(obj.volunteer); }
-}
-
-if (router.currentRoute.value.query) {
-    readQueryFromObj(router.currentRoute.value.query);
-}
+/* service list */
 
 const serviceList: Ref<ServiceEvent[]> = ref([]);
 const serviceListLoading = ref(false);
@@ -186,6 +172,47 @@ const getServiceListAsync = async (q: ServiceQuery) => {
 }
 
 const doServiceListRefresh = async () => await getServiceListAsync(serviceQuery.value);
+
+/* service detail */
+const editingService: Ref<ServiceEventDetail | null> = ref(null);
+const showDrawer = ref(false);
+
+const getServiceEventDetailAsync = async (id: number) => {
+    serviceListLoading.value = true;
+    try {
+        const detail = await getServiceEventDetail(id);
+        editingService.value = detail;
+        console.log('service detail refreshed', detail);
+    } catch (e: any) {
+        handleError(e, message, router);
+    } finally {
+        serviceListLoading.value = false;
+    }
+}
+
+/* read initial query from route params */
+
+const readQueryFromObj = (obj: any) => {
+    console.log('read query from obj', obj);
+    if (Object.keys(obj).includes('activity')) { serviceQuery.value.activity = Number(obj.activity); }
+    if (Object.keys(obj).includes('status')) { serviceQuery.value.status = Number(obj.status); }
+    if (Object.keys(obj).includes('createLower')) { serviceQuery.value.createLower = obj.createLower; }
+    if (Object.keys(obj).includes('createUpper')) { serviceQuery.value.createUpper = obj.createUpper; }
+    if (Object.keys(obj).includes('draft')) { serviceQuery.value.draft = Boolean(obj.draft); }
+    if (Object.keys(obj).includes('closed')) { serviceQuery.value.closed = Boolean(obj.closed); }
+    if (Object.keys(obj).includes('client')) { serviceQuery.value.client = Number(obj.client); }
+    if (Object.keys(obj).includes('volunteer')) { serviceQuery.value.volunteer = Number(obj.volunteer); }
+    // shortcut 
+    if (Object.keys(obj).includes('id')) {
+        const id = Number(obj.id);
+        getServiceEventDetailAsync(id)
+            .then(()=>{showDrawer.value = true;})
+    }
+}
+
+if (router.currentRoute.value.query) {
+    readQueryFromObj(router.currentRoute.value.query);
+}
 
 const formRef = ref(null as any);
 
@@ -280,23 +307,6 @@ const columns = [
         )
     },
 ];
-
-/* drawer */
-const editingService: Ref<ServiceEventDetail | null> = ref(null);
-const showDrawer = ref(false);
-
-const getServiceEventDetailAsync = async (id: number) => {
-    serviceListLoading.value = true;
-    try {
-        const detail = await getServiceEventDetail(id);
-        editingService.value = detail;
-        console.log('service detail refreshed', detail);
-    } catch (e: any) {
-        handleError(e, message, router);
-    } finally {
-        serviceListLoading.value = false;
-    }
-}
 
 const setupTask = async () => {
     getIncomingActivitiesAsync();
@@ -399,6 +409,14 @@ setupTask();
             </div>
 
             <div v-else class="table-header-btn">
+                <n-button type="primary" @click="generateServiceExcel(serviceList, incomingActivities)" class="query-btn">
+                    <template #icon>
+                        <n-icon>
+                            <filter-outline />
+                        </n-icon>
+                    </template>
+                    xx
+                </n-button>
                 <n-button type="primary" @click="showServiceQuery = true" class="query-btn">
                     <template #icon>
                         <n-icon>
@@ -417,6 +435,7 @@ setupTask();
                 :data="serviceList"
                 :loading="serviceListLoading"
                 :scroll-x="1000"
+                :remote="true"
                 striped
             />
         </div>

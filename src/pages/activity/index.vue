@@ -430,6 +430,7 @@ const formRules = {
                 :data="activityList"
                 :loading="activityListLoading"
                 :scroll-x="1000"
+                :remote="true"
                 @update-sorter="doSort"
                 striped
             />

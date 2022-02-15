@@ -435,6 +435,7 @@ const formRules = {
             :data="adminList"
             :loading="adminLoading"
             :scroll-x="1000"
+            :remote="true"
             striped
         />
     </div>
