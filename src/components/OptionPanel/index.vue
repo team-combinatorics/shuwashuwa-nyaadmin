@@ -2,8 +2,8 @@
 
 import { NDrawer, NDrawerContent } from 'naive-ui';
 
-import PasswordCard from './PasswordCard.vue';
-import CacheCard from './CacheCard.vue';
+import PasswordCard from '~/components/OptionPanel/PasswordCard.vue';
+import CacheCard from '~/components/OptionPanel/CacheCard.vue';
 
 const props = defineProps({
     show: {

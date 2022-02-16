@@ -9,6 +9,8 @@ declare module 'vue' {
     ActivityShowcase: typeof import('./components/ActivityShowcase.vue')['default']
     BounceLoading: typeof import('./components/BounceLoading.vue')['default']
     CacheCard: typeof import('./components/OptionPanel/CacheCard.vue')['default']
+    CarbonDicomOverlay: typeof import('~icons/carbon/dicom-overlay')['default']
+    CarbonWarning: typeof import('~icons/carbon/warning')['default']
     Footer: typeof import('./components/Footer.vue')['default']
     Header: typeof import('./components/Header.vue')['default']
     OptionPanel: typeof import('./components/OptionPanel/index.vue')['default']
