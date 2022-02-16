@@ -467,33 +467,3 @@ setupTask();
     }
 }
 </style>
-
-<style>
-/* global styles */
-.table-header {
-    @apply flex justify-between items-center;
-}
-
-.n-h.table-header-text.n-h--prefix-bar::before {
-    background-color: #555;
-}
-
-.n-h:first-child.table-header-text {
-    @apply flex items-center ml-2;
-    margin: 15px;
-    margin-left: 23px;
-    flex: none;
-}
-
-.table-header-btn {
-    @apply flex items-center;
-    margin: 15px;
-    gap: 15px;
-    flex: none;
-}
-
-.drawer-btn {
-    width: 100%;
-    text-align: center;
-}
-</style>

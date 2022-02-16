@@ -383,8 +383,8 @@ const formRules = {
     <div class="admin-header">
         <div v-if="hideText && isAdding" />
         <div v-else class="admin-logo flex items-center">
-            <n-h3 prefix="bar" align-text class="logo-text flex items-center ml-2">
-                <n-icon class="admin-icon" size="20">
+            <n-h3 prefix="bar" align-text class="table-header-text">
+                <n-icon class="mx-2" size="20">
                     <people-outline />
                 </n-icon>
                 管理员列表
@@ -402,7 +402,7 @@ const formRules = {
                 <n-button
                     @click="isAdding = false; addAdminInput = ''"
                     type="error"
-                    class="rounded-r-none square-btn"
+                    class="square-btn radius-r-none"
                     :disabled="addAdminInputLoading"
                 >
                     <n-icon size="18">
@@ -410,7 +410,7 @@ const formRules = {
                     </n-icon>
                 </n-button>
                 <n-auto-complete
-                    class="min-w-55"
+                    class="min-w-55 radius-none"
                     v-model:value="addAdminInput"
                     :options="searchOptions"
                     :on-select="onSearchSelect"
@@ -420,7 +420,7 @@ const formRules = {
                 <n-button
                     @click="doAddAdmin"
                     type="primary"
-                    class="rounded-l-none square-btn"
+                    class="radius-l-none square-btn"
                     :disabled="addAdminInputLoading"
                 >
                     <n-icon size="18">
@@ -507,15 +507,6 @@ const formRules = {
     @apply flex justify-between items-center;
 }
 
-.admin-logo {
-    margin: 15px;
-    flex: none;
-}
-
-.admin-icon {
-    @apply mx-2;
-}
-
 /* really wide screens */
 @media screen and (min-width: 1250px) {
     .admin-header,
@@ -523,21 +514,5 @@ const formRules = {
         width: 80%;
         margin: auto;
     }
-}
-</style>
-
-<style>
-/* Overriding styles */
-.add-admin-input .n-input__border,
-.add-admin-input .n-input__state-border {
-    @apply rounded-none;
-}
-
-.logo-text {
-    @apply my-0;
-}
-
-.admin-logo .n-h.n-h--prefix-bar::before {
-    background-color: #555;
 }
 </style>

@@ -3,7 +3,7 @@
 
 import type { Ref } from 'vue';
 
-import type { ServiceQuery, ServiceEvent, ServiceEventDetail } from '~/models/service';
+import type { ServiceQuery, ServiceEvent } from '~/models/service';
 import type { ActivityInfo } from '~/models/activity';
 import type { User } from '~/models/user';
 
@@ -22,10 +22,10 @@ import { parseDate, formatDate } from '~/composables/date';
 
 import { useWindowSize } from '@vueuse/core';
 
-import { SearchOutline, CloseOutline, FilterOutline } from '@vicons/ionicons5';
-import { ChartRiver, DocumentExport, ToolKit, User as UserIcon } from '@vicons/carbon';
+import { SearchOutline, CloseOutline, FilterOutline, PeopleOutline } from '@vicons/ionicons5';
+import { ChartRiver, DocumentExport, ToolKit } from '@vicons/carbon';
 
-import { groupBy, countBy, mapValues, take } from 'lodash';
+import { groupBy, countBy } from 'lodash';
 
 import { Chart, registerables } from 'chart.js';
 import { BarChart } from 'vue-chart-3';
@@ -393,7 +393,7 @@ const timeSlotBarData = computed(() => ({
 /* setup task */
 const setupTask = async () => {
     getActivitiesAsync();
-    getVolunteerListAsync();
+    await getVolunteerListAsync();
     /* get service list on refresh */
     doServiceListRefresh();
 }
@@ -552,7 +552,7 @@ setupTask();
                 </n-gi>
 
                 <n-gi>
-                <n-statistic label="提交维修单">
+                <n-statistic label="收到维修单">
                     <n-number-animation
                         ref="numberAnimationInstRef"
                         :from="0"
@@ -617,12 +617,12 @@ setupTask();
             <template #header>
                 <n-h3 align-text class="table-header-text">
                     <n-icon class="mx-2" size="20">
-                        <user-icon />
+                        <people-outline />
                     </n-icon>志愿者统计
                 </n-h3>
             </template>
 
-            <n-grid cols="2 450:3 600:4 900:6 1350:9 1800:12" x-gap="15" y-gap="15" class="text-center">
+            <n-grid cols="2 480:3 640:4 960:6 1440:9 1920:12" x-gap="15" y-gap="15" class="text-center">
                 <n-gi v-for="(item, index) in volunteerData"
                     :key="index">
                     <router-link :to="{ name: 'stats', query: { volunteer: nameToVolunteer[item.姓名].volunteerId.toString()}}">
@@ -672,38 +672,4 @@ setupTask();
     margin: 15px;
 }
 
-</style>
-
-<style>
-/* global styles */
-.n-card.chart-card > .n-card-header {
-    @apply p-0;
-}
-
-.table-header {
-    @apply flex justify-between items-center;
-}
-
-.n-h.table-header-text.n-h--prefix-bar::before {
-    background-color: #555;
-}
-
-.n-h:first-child.table-header-text {
-    @apply flex items-center ml-2;
-    margin: 15px;
-    margin-left: 23px;
-    flex: none;
-}
-
-.table-header-btn {
-    @apply flex items-center;
-    margin: 15px;
-    gap: 15px;
-    flex: none;
-}
-
-.drawer-btn {
-    width: 100%;
-    text-align: center;
-}
 </style>

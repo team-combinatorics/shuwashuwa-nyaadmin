@@ -67,9 +67,6 @@ const getActivityListAsync = async () => {
     }
 }
 
-/* get activity list on setup */
-getActivityListAsync();
-
 const nowStr = formatDate(Date.now());
 
 const defaultEditingActivity: Activity = {
@@ -401,6 +398,18 @@ const formRules = {
         }
     },
 };
+
+/* get activity list on setup */
+getActivityListAsync().then(() => {
+    /* shortcut */
+    if (router.currentRoute.value.query.activity){
+        const activityId = Number(router.currentRoute.value.query.activity);
+        const actInfo = activityList.value.find(act => act.id === activityId);
+        if (actInfo) {
+            doEditActivity(actInfo);
+        }
+    }
+});
 </script>
 
 <template>
@@ -411,16 +420,15 @@ const formRules = {
         </div>
 
         <!-- table header -->
-        <div class="activity-header">
-            <div class="activity-logo flex items-center">
-                <n-h3 prefix="bar" align-text class="logo-text flex items-center ml-2">
-                    <n-icon class="activity-icon" size="20">
-                        <list-outline />
-                    </n-icon>活动列表
-                </n-h3>
-            </div>
+        <div class="table-header">
+            <n-h3 prefix="bar" align-text class="table-header-text">
+                <n-icon class="mx-2" size="20">
+                    <list-outline />
+                </n-icon>
+                活动列表
+            </n-h3>
 
-            <div class="add-activity-input">
+            <div class="table-header-btn">
                 <n-button :disabled="isEditing" @click="doAddActivity" type="primary">
                     <n-icon size="18" class="mr-1">
                         <add-outline />
@@ -508,11 +516,13 @@ const formRules = {
                                 :step="15"
                                 :disabled="activityLoading"
                                 placeholder="时间间隔"
+                                class="radius-r-none"
                             >
                                 <template #suffix>分钟为单位</template>
                             </n-input-number>
                             <n-button
                                 type="primary"
+                                class="radius-l-none"
                                 :disabled="activityLoading"
                                 @click="doSplitTimeSlots"
                             >自动分割</n-button>
@@ -604,35 +614,6 @@ const formRules = {
     @apply flex justify-around;
 }
 
-.add-activity-input {
-    @apply flex justify-end;
-    margin: 15px;
-    flex: none;
-}
-
-.square-btn {
-    aspect-ratio: 1 / 1;
-}
-
-.activity-header {
-    @apply flex justify-between items-center;
-}
-
-.activity-logo {
-    margin: 15px;
-    flex: none;
-}
-
-.activity-icon {
-    @apply mx-2;
-}
-
-/* @media screen and (max-width: 480px) {
-    .activity-icon {
-        @apply ml-1 mr-0;
-    }
-} */
-
 .timeslot-picker {
     @apply flex justify-center items-center;
     width: 100%;
@@ -654,33 +635,11 @@ const formRules = {
     flex: 1;
 }
 
-.activity-showcase {
-    @apply flex justify-start items-center;
-    list-style-type: none;
-    width: 100%;
-}
-
 /* really wide screens */
 @media screen and (min-width: 1250px) {
     .page-container {
         width: 80%;
         margin: auto;
     }
-}
-</style>
-
-<style>
-/* Overriding styles */
-.add-activity-input .n-input__border,
-.add-activity-input .n-input__state-border {
-    @apply rounded-none;
-}
-
-.timeslot-btn .n-input__border .timeslot-btn .n-input__state-border {
-    @apply rounded-r-none;
-}
-
-.logo-text {
-    @apply my-0;
 }
 </style>

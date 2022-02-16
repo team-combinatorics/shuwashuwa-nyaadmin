@@ -108,6 +108,7 @@ const doLogin = () => {
             type="password"
             class="my-2.5 text-center"
             v-model:value="password"
+            @keypress="e => e.key === 'Enter' && doLogin()"
           />
           <n-button
             style="width: 100%"

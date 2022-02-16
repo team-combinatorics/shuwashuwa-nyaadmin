@@ -10,14 +10,12 @@ import ActivityCard from '~/components/ActivityCard.vue';
 
 /* primary color */
 import { useThemeVars, useMessage } from 'naive-ui';
-
 import { NButton, NGi, NGrid, NIcon } from 'naive-ui';
 
-import { parseDate } from '~/composables/date';
 import { getActivityList } from '~/api/activity';
 import { handleError } from '~/composables/error';
 
-import { first } from 'lodash';
+import { useSwipe } from '@vueuse/core';
 
 import { ChevronBack, ChevronForward } from '@vicons/ionicons5';
 import { Edit as EditIcon, GroupPresentation, ToolKit as ToolKitIcon, ChartRiver } from '@vicons/carbon';
@@ -53,8 +51,25 @@ const getActivityListAsync = async () => {
     }
 }
 
-const editingActivityUrl = computed(() => '/activity/' + currentActivity.value.id);
-const goToActivity = () => router.push(editingActivityUrl.value);
+/* swipe */
+const swipeRef = ref(null);
+const { direction } = useSwipe(swipeRef);
+
+watch (direction, (newVal) => {
+    console.log('swipe', newVal);
+  if (newVal === "LEFT") {
+    goNextActivity();
+  } else if (newVal === "RIGHT") {
+    goPrevActivity();
+  }
+});
+
+/* shortcuts */
+const editUrl = computed(() => '/activity?activity=' + currentActivity.value.id);
+const goToEdit = () => router.push(editUrl.value);
+
+const activityUrl = computed(() => '/activity/' + currentActivity.value.id);
+const goToActivity = () => router.push(activityUrl.value);
 
 const serviceUrl = computed(() => '/service?activity=' + currentActivity.value.id);
 const goToService = () => router.push(serviceUrl.value);
@@ -71,7 +86,7 @@ getActivityListAsync();
     <Header />
     <!-- activity showcase -->
     <section class="h-80vh flex items-center justify-center">
-        <div v-if="currentActivity" class="activity-showcase">
+        <div v-if="currentActivity" class="activity-showcase" ref="swipeRef">
             <div>
                 <n-button
                     @click="goPrevActivity"
@@ -88,9 +103,9 @@ getActivityListAsync();
             </div>
             <div>
                 <ActivityCard :activity="currentActivity" />
-                <n-grid cols="1 300:2 600:4" x-gap="15" y-gap="15" class="p-5 pt-5vh">
+                <n-grid cols="1 300:2 600:4" x-gap="15" y-gap="15" class="p-5 pt-3vh">
                     <n-gi class="showcase-btn">
-                        <n-button @click="goNextActivity" quaternary size="large">
+                        <n-button @click="goToEdit" quaternary size="large">
                             <template #icon>
                                 <n-icon>
                                     <edit-icon />
@@ -110,7 +125,7 @@ getActivityListAsync();
                         </n-button>
                     </n-gi>
                     <n-gi class="showcase-btn">
-                        <n-button @click="goToStats" quaternary size="large">
+                        <n-button @click="goToService" quaternary size="large">
                             <template #icon>
                                 <n-icon>
                                     <tool-kit-icon />

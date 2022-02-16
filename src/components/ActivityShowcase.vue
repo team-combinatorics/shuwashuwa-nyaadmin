@@ -16,14 +16,12 @@ const props = defineProps({
 </script>
 
 <template>
-    <div class="showcase-header">
-        <div class="activity-logo flex items-center">
-            <n-h3 prefix="bar" align-text class="logo-text flex items-center ml-2">
-                <n-icon class="activity-icon" size="20">
-                    <list-outline />
-                </n-icon>进行中活动
-            </n-h3>
-        </div>
+    <div class="table-header">
+        <n-h3 prefix="bar" align-text class="table-header-text">
+            <n-icon class="mx-2" size="20">
+                <list-outline />
+            </n-icon>进行中活动
+        </n-h3>
     </div>
     <div class="activity-showcase">
         <li v-for="item in props.activities" :key="item.id">

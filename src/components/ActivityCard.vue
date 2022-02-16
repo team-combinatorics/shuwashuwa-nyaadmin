@@ -36,7 +36,8 @@ const activityType = computed(() => {
     <router-link :to="activityUrl" :title="props.activity.activityName">
         <n-card class="activity-card">
         <template #header>
-            <n-h3 prefix="bar" align-text class="flex items-center mb-0 mx-2 p-0" :type="activityType">
+            <!-- make it look nice on small screens -->
+            <n-h3 prefix="bar" align-text class="flex items-center text-my-0 pr-2" :type="activityType">
                 {{ props.activity.activityName }}
             </n-h3>
         </template>

@@ -18,6 +18,14 @@ import 'virtual:windi-devtools'
 import 'vfonts/Lato.css'
 import 'vfonts/FiraCode.css'
 
+/* naive ui styles */
+const meta = document.createElement('meta')
+meta.name = 'naive-ui-style'
+document.head.appendChild(meta)
+
+/* overriding styles */
+import './styles/overrides.css'
+
 /* Init Routes and Layouts */
 /* https://github.com/JohnCampionJr/vite-plugin-vue-layouts */
 import { createRouter, createWebHistory } from 'vue-router'

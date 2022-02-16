@@ -1,0 +1,63 @@
+/* overrides naive-ui styles */
+/* be sure to include this file after the main stylesheet */
+
+.n-card.chart-card > .n-card-header {
+    @apply p-0;
+}
+
+.table-header {
+    @apply flex justify-between items-center;
+}
+
+.n-h.table-header-text.n-h--prefix-bar::before {
+    background-color: #555;
+}
+
+.n-h:first-child.table-header-text {
+    @apply flex items-center ml-2;
+    margin: 15px;
+    margin-left: 23px;
+    flex: none;
+}
+
+.table-header-btn {
+    @apply flex items-center;
+    margin: 15px;
+    gap: 15px;
+    flex: none;
+}
+
+.drawer-btn {
+    width: 100%;
+    text-align: center;
+}
+
+.n-h.text-my-0,
+.text-my-0,
+.n-text.text-my-0 {
+    @apply my-0;
+}
+
+.n-button.radius-r-none,
+.n-input.radius-r-none .n-input__border,
+.n-input.radius-r-none .n-input__state-border,
+.radius-r-none .n-input .n-input__border,
+.radius-r-none .n-input .n-input__state-border {
+    @apply rounded-r-none;
+}
+
+.n-button.radius-l-none,
+.n-input.radius-l-none .n-input__border,
+.n-input.radius-l-none .n-input__state-border,
+.radius-l-none .n-input .n-input__border,
+.radius-l-none .n-input .n-input__state-border {
+    @apply rounded-l-none;
+}
+
+.n-button.radius-none,
+.n-input.radius-none .n-input__border,
+.n-input.radius-none .n-input__state-border
+.radius-none .n-input .n-input__border,
+.radius-none .n-input .n-input__state-border {
+    @apply rounded-none;
+}
