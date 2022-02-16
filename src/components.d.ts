@@ -12,7 +12,6 @@ declare module 'vue' {
     Footer: typeof import('./components/Footer.vue')['default']
     Header: typeof import('./components/Header.vue')['default']
     OptionPanel: typeof import('./components/OptionPanel/index.vue')['default']
-    OptionPanelAAA: typeof import('./components/OptionPanelAAA/index.vue')['default']
     PasswordCard: typeof import('./components/OptionPanel/PasswordCard.vue')['default']
     PollServicePanel: typeof import('./components/PollServicePanel.vue')['default']
     README: typeof import('./components/README.md')['default']

@@ -11,12 +11,12 @@ const prefersDark = usePreferredDark()
 
 <template>
 <n-config-provider :theme="prefersDark ? darkTheme : null">
-  <n-layout>
+  <n-layout class="default-layout">
     <n-loading-bar-provider>
     <n-notification-provider>
     <n-message-provider>
       <Header />
-      <div class="default-layout">
+      <div class="layout-content">
         <router-view />
       </div>
     </n-message-provider>
@@ -40,7 +40,7 @@ const prefersDark = usePreferredDark()
 
 /* really wide screens */
 @media screen and (min-width: 1250px) {
-  .default-layout {
+  .layout-content {
         width: 80%;
         margin: auto;
     }
