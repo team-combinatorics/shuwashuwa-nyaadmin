@@ -11,8 +11,7 @@ const prefersDark = usePreferredDark()
 
 <template>
   <n-config-provider :theme="prefersDark ? darkTheme : null">
-    
-    <n-layout class="default-layout">
+    <n-layout class="login-layout">
       <n-notification-provider>
       <n-message-provider>
         <router-view />
@@ -25,3 +24,9 @@ const prefersDark = usePreferredDark()
     </div>
   </n-config-provider>
 </template>
+
+<style>
+.login-layout {
+  height: 100vh;
+}
+</style>

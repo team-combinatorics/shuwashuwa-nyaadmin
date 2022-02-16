@@ -36,16 +36,18 @@ const activityType = computed(() => {
     <router-link :to="activityUrl" :title="props.activity.activityName">
         <n-card class="activity-card">
         <template #header>
-            <n-h3 prefix="bar" align-text class="logo-text flex items-center ml-2" :type="activityType">
+            <n-h3 prefix="bar" align-text class="flex items-center mb-0 mx-2 p-0" :type="activityType">
                 {{ props.activity.activityName }}
             </n-h3>
         </template>
         <template #header-extra>
-            {{ props.activity.location }}
+            <div class="text-right">
+                {{ props.activity.location }}
+            </div>
         </template>
 
         <div class="activity-card-content">
-            <time>{{ props.activity.startTime }}</time>
+            <time >{{ props.activity.startTime }}</time>
             <n-icon class="mx-1">
                 <arrow-right />
             </n-icon>
@@ -57,7 +59,7 @@ const activityType = computed(() => {
 
 <style>
 .activity-card-content {
-    @apply flex justify-between items-center;
+    @apply flex justify-between items-center text-center;
     width: 100%;
 }
 </style>

@@ -9,7 +9,7 @@ import { deleteAdmin, getAdminList, updateAdmin, addAdmin, getVolunteerList, get
 import { handleError } from '~/composables/error';
 
 import { NDataTable, NButton, NIcon, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NPopconfirm, NAutoComplete, NH3 } from 'naive-ui';
-import { useMessage } from 'naive-ui';
+import { useMessage, useLoadingBar } from 'naive-ui';
 
 import { Edit } from '@vicons/carbon';
 import { AddOutline, CheckmarkOutline, CloseOutline, PeopleOutline } from '@vicons/ionicons5';
@@ -28,6 +28,7 @@ const hideText = computed(() => {
 
 const message = useMessage();
 const router = useRouter();
+const loadingBar = useLoadingBar();
 
 const adminList: Ref<User[]> = ref([]);
 const adminLoading = ref(false);
@@ -35,12 +36,15 @@ const adminLoading = ref(false);
 const getAdminListAsync = async () => {
     if (adminLoading.value) return;  /* skip repeated requests */
     adminLoading.value = true;
+    loadingBar.start();
     try {
         const list = await getAdminList();
         adminList.value = list;
         console.log('admin list refreshed', list);
+        loadingBar.finish();
     } catch (e: any) {
         handleError(e, message, router);
+        loadingBar.error();
     } finally {
         adminLoading.value = false;
     }

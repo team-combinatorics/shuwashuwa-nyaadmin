@@ -15,7 +15,7 @@ import { handleError } from '~/composables/error';
 import { getServiceEventList, getServiceEventDetail } from '~/api/service';
 
 import { useHead } from '@vueuse/head';
-import { useMessage } from 'naive-ui';
+import { useMessage, useLoadingBar } from 'naive-ui';
 import { getVolunteerList } from '~/api/user';
 
 import { parseDate, formatDate } from '~/composables/date';
@@ -26,8 +26,6 @@ import { Information as InformationIcon, Edit as EditIcon, ToolKit as ToolKitIco
 import ServiceDrawer from '~/components/ServiceDrawer.vue';
 
 import { useWindowSize } from '@vueuse/core';
-
-import { generateServiceExcel } from '~/composables/excel-generator';
 
 const router = useRouter();
 const message = useMessage();
@@ -46,6 +44,8 @@ const drawerWidth = computed(() => {
     // make it possible to close
     return useMobileLayout.value ? windowSize.width.value * 0.85 : 600;
 })
+
+const loadingBar = useLoadingBar();
 
 const activityLoading = ref(false);
 const incomingActivities = ref<ActivityInfo[]>([]);
@@ -78,12 +78,16 @@ const serviceQuery: Ref<ServiceQuery> = ref({
 });
 const showServiceQuery = ref(false);
 
-const volunteerLoading = ref(false);
-const volunteerList: Ref<User[]> = ref([]);
+/* index + 1 is a ugly workaround to get volunteerId */
+/* TODO refactor this when this API is fixed */
+type Volunteer = User & {volunteerId: number};
+
+const volunteerList: Ref<Volunteer[]> = ref([]);
+
 const volunteerOptions = computed(() => {
     return volunteerList.value.map(volunteer => ({
         label: volunteer.userName + '(' + volunteer.studentId + ')',
-        value: volunteer.userid
+        value: volunteer.volunteerId
     }));
 });
 
@@ -120,16 +124,16 @@ const statusColorType = (status: number) => {
 }
 
 const getVolunteerListAsync = async () => {
-    volunteerLoading.value = true;
     try {
         const list = await getVolunteerList();
         console.log('volunteer list refreshed', list);
-        volunteerList.value = list;
+        volunteerList.value = list.map((v, index) => ({
+            ...v,
+            volunteerId: index + 1
+        }));
     } catch (e: any) {
         handleError(e, message, router);
-    } finally {
-        volunteerLoading.value = false;
-    }
+    } 
 }
 
 const getDateRange = computed(() => {
@@ -161,11 +165,15 @@ const serviceListLoading = ref(false);
 const getServiceListAsync = async (q: ServiceQuery) => {
     console.log(serviceQuery.value);
     serviceListLoading.value = true;
+    loadingBar.start();
     try {
         serviceList.value = await getServiceEventList(q);
+        serviceList.value.sort((a, b) => b.serviceEventId - a.serviceEventId);
         console.log('service list refreshed', serviceList.value);
+        loadingBar.finish();
     } catch (e: any) {
         handleError(e, message, router);
+        loadingBar.error();
     } finally {
         serviceListLoading.value = false;
     }
@@ -346,7 +354,7 @@ setupTask();
                     <n-select
                         v-model:value="serviceQuery.volunteer"
                         :options="volunteerOptions"
-                        :loading="volunteerLoading"
+                        :loading="activityLoading"
                         placeholder="请选择/通过姓名查询"
                         filterable
                         clearable
@@ -409,14 +417,6 @@ setupTask();
             </div>
 
             <div v-else class="table-header-btn">
-                <n-button type="primary" @click="generateServiceExcel(serviceList, incomingActivities)" class="query-btn">
-                    <template #icon>
-                        <n-icon>
-                            <filter-outline />
-                        </n-icon>
-                    </template>
-                    xx
-                </n-button>
                 <n-button type="primary" @click="showServiceQuery = true" class="query-btn">
                     <template #icon>
                         <n-icon>

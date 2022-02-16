@@ -11,7 +11,7 @@ import { deleteActivity, addActivity, updateActivity, getActivityList, getActivi
 import { handleError } from '~/composables/error';
 
 import { NDataTable, NButton, NIcon, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NPopconfirm, NDatePicker, NH3, NDynamicInput, NInputNumber } from 'naive-ui';
-import { useMessage } from 'naive-ui';
+import { useMessage, useLoadingBar } from 'naive-ui';
 
 import { formatDate, parseDate, splitTimeSlots } from '~/composables/date';
 
@@ -39,6 +39,7 @@ const drawerWidth = computed(() => {
 
 const message = useMessage();
 const router = useRouter();
+const loadingBar = useLoadingBar();
 
 const activityList: Ref<ActivityInfo[]> = ref([]);
 const activityLoading = ref(false);
@@ -51,13 +52,16 @@ const incomingActivityList = computed((): ActivityInfo[] => {
 const getActivityListAsync = async () => {
     if (activityListLoading.value) return;  /* skip repeated requests */
     activityListLoading.value = true;
+    loadingBar.start();
     try {
         const list = await getActivityList();
         activityList.value = list;
         console.log('activity list refreshed', list);
         activityList.value.sort((a, b) => b.id - a.id);
+        loadingBar.finish();
     } catch (e: any) {
         handleError(e, message, router);
+        loadingBar.error();
     } finally {
         activityListLoading.value = false;
     }
@@ -86,6 +90,9 @@ const goToActivity = () => router.push(editingActivityUrl.value);
 
 const serviceUrl = computed(() => '/service?activity=' + editingActivity.value.activityId);
 const goToService = () => router.push(serviceUrl.value);
+
+const statsUrl = computed(() => '/stats?activity=' + editingActivity.value.activityId);
+const goToStats = () => router.push(statsUrl.value);
 
 const activityIdComputed = computed(() => {
     if (editingActivity.value.activityId) {
@@ -573,6 +580,14 @@ const formRules = {
                 class="drawer-btn"
                 @click="goToService"
             >查看维修单</n-button>
+
+            <n-button
+                v-if="activityIdComputed"
+                :disabled="!editingActivity.activityName || activityLoading"
+                type="default"
+                class="drawer-btn"
+                @click="goToStats"
+            >统计活动数据</n-button>
 
         </n-drawer-content>
     </n-drawer>

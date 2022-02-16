@@ -7,6 +7,7 @@ declare module 'vue' {
     About: typeof import('./components/About.vue')['default']
     ActivityCard: typeof import('./components/ActivityCard.vue')['default']
     ActivityShowcase: typeof import('./components/ActivityShowcase.vue')['default']
+    BounceLoading: typeof import('./components/BounceLoading.vue')['default']
     CacheCard: typeof import('./components/OptionPanel/CacheCard.vue')['default']
     Footer: typeof import('./components/Footer.vue')['default']
     Header: typeof import('./components/Header.vue')['default']

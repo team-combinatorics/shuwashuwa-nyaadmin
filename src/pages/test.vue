@@ -38,27 +38,27 @@ const toWorkServiceCount = ref(-1);
 const workingServiceCount = ref(-1);
 const finishedServiceCount = ref(-1);
 
-// const getServiceCountAsync = async (activityId: number) => {
-//     for (let serviceType of [2,3,4,5]) {
-//         try {
-//             const count = await getServiceEventCount({
-//                 activity: activityId,
-//                 status: serviceType,
-//             })
-//             if (serviceType === 2) {
-//                 passedServiceCount.value = count;
-//             } else if (serviceType === 3) {
-//                 toWorkServiceCount.value = count;
-//             } else if (serviceType === 4) {
-//                 workingServiceCount.value = count;
-//             } else if (serviceType === 5) {
-//                 finishedServiceCount.value = count;
-//             }
-//         } catch (e: any) {
-//             handleError(e, message, router);
-//         }
-//     }
-// } 
+const getServiceCountAsync = async (activityId: number) => {
+    for (let serviceType of [2,3,4,5]) {
+        try {
+            const count = await getServiceEventCount({
+                activity: activityId,
+                status: serviceType,
+            })
+            if (serviceType === 2) {
+                passedServiceCount.value = count;
+            } else if (serviceType === 3) {
+                toWorkServiceCount.value = count;
+            } else if (serviceType === 4) {
+                workingServiceCount.value = count;
+            } else if (serviceType === 5) {
+                finishedServiceCount.value = count;
+            }
+        } catch (e: any) {
+            handleError(e, message, router);
+        }
+    }
+} 
 
 const testData = {
       labels: ['Paris', 'Nîmes', 'Toulon', 'Perpignan', 'Autre'],
