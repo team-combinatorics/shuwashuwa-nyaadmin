@@ -101,7 +101,7 @@ getActivityListAsync();
                     </n-icon>
                 </n-button>
             </div>
-            <div>
+            <div class="activity-card">
                 <ActivityCard :activity="currentActivity" />
                 <n-grid cols="1 300:2 600:4" x-gap="15" y-gap="15" class="p-5 pt-3vh">
                     <n-gi class="showcase-btn">
@@ -172,6 +172,10 @@ getActivityListAsync();
     @apply flex justify-center items-center;
     height: 80vh;
     gap: 3vh;
+}
+
+.activity-card {
+    @apply ease-linear;
 }
 
 .showcase-btn {

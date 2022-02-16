@@ -459,11 +459,4 @@ setupTask();
     flex-wrap: wrap;
 }
 
-/* really wide screens */
-@media screen and (min-width: 1250px) {
-    .service-table {
-        width: 80%;
-        margin: auto;
-    }
-}
 </style>

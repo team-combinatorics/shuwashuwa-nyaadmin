@@ -507,12 +507,4 @@ const formRules = {
     @apply flex justify-between items-center;
 }
 
-/* really wide screens */
-@media screen and (min-width: 1250px) {
-    .admin-header,
-    .table-container {
-        width: 80%;
-        margin: auto;
-    }
-}
 </style>

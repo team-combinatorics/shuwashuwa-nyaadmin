@@ -634,12 +634,4 @@ getActivityListAsync().then(() => {
     @apply rounded-l-none;
     flex: 1;
 }
-
-/* really wide screens */
-@media screen and (min-width: 1250px) {
-    .page-container {
-        width: 80%;
-        margin: auto;
-    }
-}
 </style>
