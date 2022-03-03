@@ -268,13 +268,11 @@ const columns = [
     {
         title: 'ID',
         key: 'userid',
-        fixed: 'left',
         width: '60px',
     },
     {
         title: '姓名',
         key: 'userName',
-        fixed: 'left',
         width: '120px',
         ellipsis: {
             tooltip: true

@@ -39,8 +39,8 @@ const handleUpdate = () => emit('update:show', showVal.value);
 </template>
 
 <style> /* overriding styles */
-  .about-card {
-    width: min(300px, 60%);
+  .n-card.about-card {
+    width: min(300px, 60vw);
     text-align: center;
   }
 

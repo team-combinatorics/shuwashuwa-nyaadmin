@@ -230,13 +230,11 @@ const columns = [
     {
         title: 'ID',
         key: 'serviceEventId',
-        fixed: 'left',
         width: '60px',
     },
     {
         title: '状态',
         key: 'status',
-        fixed: 'left',
         width: '80px',
         render: (row: ServiceEvent) => {
             return h(NText, {
