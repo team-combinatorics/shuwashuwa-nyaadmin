@@ -7,7 +7,7 @@ export const useGlobalStore = defineStore('global', () => {
     const devUrl = import.meta.env.VITE_DEV_URL as string;
 
     // make it persistant
-    const backendUrl: Ref<String> = useStorage('BACKENDURL', import.meta.env.VITE_PROD_URL as string);
+    const backendUrl: Ref<String> = useStorage('BACKENDURL', '/');
     const env = useStorage('ENV', 'custom') as Ref<"custom" | "prod" | "dev">;
 
     function setBackendUrl(url: string) {
