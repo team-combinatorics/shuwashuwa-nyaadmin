@@ -12,6 +12,14 @@
   to = "/index.html"
   status = 200
 
+[[redirects]]
+  from = "/api/*"
+  to = "http://shuwashuwa.kinami.cc:8848/:splat"
+  status = 200
+  force = true
+  [redirects.headers]
+    X-From = "Netlify"
+
 [[headers]]
   for = "/manifest.webmanifest"
   [headers.values]
