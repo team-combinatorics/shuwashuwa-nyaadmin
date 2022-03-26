@@ -38,6 +38,10 @@ const props = defineProps({
         type: String,
         default: 'primary',
     },
+    rolling: {
+        type: Boolean,
+        default: true,
+    }
 });
 
 /* timeago */

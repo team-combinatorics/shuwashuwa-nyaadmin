@@ -289,7 +289,6 @@ const columns = [
     {
         title: 'ID',
         key: 'id',
-        fixed: 'left',
         width: '60px',
         sorter: true,
         sortOrder: true,
@@ -297,7 +296,6 @@ const columns = [
     {
         title: '名称',
         key: 'activityName',
-        fixed: 'left',
         width: '180px',
         ellipsis: {
             tooltip: true

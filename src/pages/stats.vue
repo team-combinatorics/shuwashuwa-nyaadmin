@@ -249,7 +249,7 @@ const activityData = computed(() => Object.entries(serviceByActivity.value).map(
     const activityInfo = nameToActivity.value[activityName];
 
     const serviceCount = services.length;
-    const serviceCheckedCount = services.filter(item => [2, 3, 4, 5].includes(item.status)).length;
+    const serviceCheckedCount = services.filter(item => [3, 4, 5].includes(item.status)).length;
     const serviceFinishedCount = services.filter(item => item.status === 5).length;
 
     const volunteersCount = Object.keys(countBy(services, 'volunteerName')).length;
@@ -270,7 +270,7 @@ const activityData = computed(() => Object.entries(serviceByActivity.value).map(
 const timeSlotData = computed(() => Object.entries(serviceByTimeSlot.value).map(pair => {
     const [timeSlot, services] = pair;
     const serviceCount = services.length;
-    const serviceCheckedCount = services.filter(item => [2, 3, 4, 5].includes(item.status)).length;
+    const serviceCheckedCount = services.filter(item => [3, 4, 5].includes(item.status)).length;
     const serviceFinishedCount = services.filter(item => item.status === 5).length;
     const volunteersCount = Object.keys(countBy(services, 'volunteerName')).length;
 
