@@ -78,7 +78,7 @@ const doLogin = () => {
       <n-card class="login-card">
         <img
           class="logo"
-          :src="prefersDark ? '/shuwashuwa-dark.webp' : '/shuwashuwa-light.webp'"
+          :src="prefersDark ? '/shuwashuwa-dark.png' : '/shuwashuwa-light.png'"
           alt="Shuwashuwa"
         />
 

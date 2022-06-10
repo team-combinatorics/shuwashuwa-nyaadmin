@@ -26,7 +26,7 @@ const handleUpdate = () => emit('update:show', showVal.value);
     :auto-focus="false"
   >
     <template #cover>
-      <img src="/shuwashuwa-square.webp" class="about-icon">
+      <img src="/shuwashuwa-square.png" class="about-icon">
     </template>
       git-058eb95 &nbsp; 2022-02-09
     <template #footer> 
