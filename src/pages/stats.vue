@@ -244,7 +244,7 @@ const volunteerData = computed(() => Object.entries(serviceByVolunteer.value).ma
 }).sort((a, b) => ((b.完成维修单数 - a.完成维修单数) * 8 +  b.维修单数 - a.维修单数))
     .filter(volunteer => volunteer.姓名 !== 'null'));
 
-const activityData = computed(() => Object.entries(serviceByActivity.value).map(pair => {
+const activityData = computed(() => Object.entries(serviceByActivity.value).filter(([k,v]) => k !== "null").map(pair => {
     const [activityName, services] = pair;
     const activityInfo = nameToActivity.value[activityName];
 
