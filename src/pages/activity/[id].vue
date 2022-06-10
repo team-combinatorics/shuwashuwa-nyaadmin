@@ -10,6 +10,7 @@ import { handleError } from '~/composables/error';
 import { NImage, NDivider, NH1, NH2, NInput, NIcon, NUpload, NButton, NProgress, NCol, NRow } from 'naive-ui';
 
 import { useMessage } from 'naive-ui';
+import { useWindowSize } from '@vueuse/core';
 
 import { ArrowUpOutline, CheckmarkOutline } from '@vicons/ionicons5';
 
@@ -125,6 +126,13 @@ const clearHeader = () => {
 }
 
 const setupTask = async () => {
+    /* Screen Check */
+    console.log(1);
+    const {width, height} = useWindowSize();
+    if (height.value >= width.value) {
+        message.warning('活动展示页没有针对竖屏优化');
+    }
+
     if (!idAsNumber.value) {
         return;
     }
