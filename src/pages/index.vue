@@ -101,51 +101,51 @@ getActivityListAsync();
                     </n-icon>
                 </n-button>
             </div>
-            <div class="activity-card">
-                <ActivityCard :activity="currentActivity" />
-                <n-grid cols="1 300:2 600:4" x-gap="15" y-gap="15" class="p-5 pt-3vh">
-                    <n-gi class="showcase-btn">
-                        <n-button @click="goToEdit" quaternary size="large">
-                            <template #icon>
-                                <n-icon>
-                                    <edit-icon />
-                                </n-icon>
-                            </template>
-                            编辑活动
-                        </n-button>
-                    </n-gi>
-                    <n-gi class="showcase-btn">
-                        <n-button @click="goToActivity" quaternary size="large">
-                            <template #icon>
-                                <n-icon>
-                                    <group-presentation />
-                                </n-icon>
-                            </template>
-                            活动页面
-                        </n-button>
-                    </n-gi>
-                    <n-gi class="showcase-btn">
-                        <n-button @click="goToService" quaternary size="large">
-                            <template #icon>
-                                <n-icon>
-                                    <tool-kit-icon />
-                                </n-icon>
-                            </template>
-                            查看维修
-                        </n-button>
-                    </n-gi>
-                    <n-gi class="showcase-btn">
-                        <n-button @click="goToStats" quaternary size="large">
-                            <template #icon>
-                                <n-icon>
-                                    <chart-river />
-                                </n-icon>
-                            </template>
-                            统计数据
-                        </n-button>
-                    </n-gi>
-                </n-grid>
-            </div>
+                <div class="activity-card">
+                    <ActivityCard :activity="currentActivity" />
+                    <n-grid cols="1 300:2 600:4" x-gap="15" y-gap="15" class="p-5 pt-3vh">
+                        <n-gi class="showcase-btn">
+                            <n-button @click="goToEdit" quaternary size="large">
+                                <template #icon>
+                                    <n-icon>
+                                        <edit-icon />
+                                    </n-icon>
+                                </template>
+                                编辑活动
+                            </n-button>
+                        </n-gi>
+                        <n-gi class="showcase-btn">
+                            <n-button @click="goToActivity" quaternary size="large">
+                                <template #icon>
+                                    <n-icon>
+                                        <group-presentation />
+                                    </n-icon>
+                                </template>
+                                活动页面
+                            </n-button>
+                        </n-gi>
+                        <n-gi class="showcase-btn">
+                            <n-button @click="goToService" quaternary size="large">
+                                <template #icon>
+                                    <n-icon>
+                                        <tool-kit-icon />
+                                    </n-icon>
+                                </template>
+                                查看维修
+                            </n-button>
+                        </n-gi>
+                        <n-gi class="showcase-btn">
+                            <n-button @click="goToStats" quaternary size="large">
+                                <template #icon>
+                                    <n-icon>
+                                        <chart-river />
+                                    </n-icon>
+                                </template>
+                                统计数据
+                            </n-button>
+                        </n-gi>
+                    </n-grid>
+                </div>
             <div>
                 <n-button
                     @click="goNextActivity"
@@ -171,7 +171,7 @@ getActivityListAsync();
 .activity-showcase {
     @apply flex justify-center items-center;
     height: 80vh;
-    gap: 3vh;
+    gap: 2vh;
 }
 
 .activity-card {

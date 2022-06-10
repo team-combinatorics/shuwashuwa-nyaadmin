@@ -63,4 +63,15 @@ const activityType = computed(() => {
     @apply flex justify-between items-center text-center;
     width: 100%;
 }
+
+@media screen and (max-width: 768px) {
+    .activity-card .n-card-header {
+        @apply flex-col;
+    }
+
+    .activity-card .n-card-header__extra .text-right {
+        text-align: center;
+        margin-top: 20px;
+    }
+}
 </style>
