@@ -265,7 +265,7 @@ const activityData = computed(() => Object.entries(serviceByActivity.value).filt
         '完成维修单数': serviceFinishedCount,
         '接单志愿者数': volunteersCount
     };
-}))
+}).sort((a,b) => a.ID - b.ID));
 
 const timeSlotData = computed(() => Object.entries(serviceByTimeSlot.value).map(pair => {
     const [timeSlot, services] = pair;
