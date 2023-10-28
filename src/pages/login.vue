@@ -43,32 +43,39 @@ const setCustomState = () => globalStore.env = 'custom';
 /* login */
 const username = ref('');
 const password = ref('');
+const disableLoginButton = ref(false);
 
 const router = useRouter();
 const message = useMessage();
 
-const doLogin = () => {
-  if (username.value && password.value) {
-    login(username.value, password.value)
-      .then(() => {
-        message.success('登录成功');
-        // delay 600ms to make sure the message is shown
-        setTimeout(() => {
-          // if previous page is login page, redirect to home page
-          if (router.currentRoute.value.name === 'login') {
-            router.push('/');
-          }
-          // else redirect to previous page
-          else {
-            router.back();
-          }
-        }, 600);
-      })
-      .catch(error => {
-        message.error(parseError(error).message);
-      });
+const doLogin = async () => {
+  if (!username.value || !password.value) {
+    return;
+  }
+
+  disableLoginButton.value = true;
+
+  try {
+    await login(username.value, password.value);
+    message.success('登录成功');
+    // delay 600ms to make sure the message is shown
+    setTimeout(() => {
+      // if previous page is login page, redirect to home page
+      disableLoginButton.value = false;
+      if (router.currentRoute.value.name === 'login') {
+        router.push('/');
+      }
+      // else redirect to previous page
+      else {
+        router.back();
+      }
+    }, 600);
+  } catch (error) {
+    disableLoginButton.value = false;
+    message.error(parseError(error).message);
   }
 }
+
 </script>
 
 <template>
@@ -115,7 +122,7 @@ const doLogin = () => {
             type="primary"
             class="mt-2.5"
             @click="doLogin"
-            :disabled="!username || !password"
+            :disabled="!username || !password || disableLoginButton"
           >登录</n-button>
         </form>
 
