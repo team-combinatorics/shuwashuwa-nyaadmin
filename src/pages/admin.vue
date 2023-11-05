@@ -44,6 +44,7 @@ const getAdminListAsync = async () => {
         adminList.value = list;
         console.log('admin list refreshed', list);
         loadingBar.finish();
+        tablePagination.page = 1;  // set page to 1 when query is changed
     } catch (e: any) {
         handleError(e, message, router);
         loadingBar.error();

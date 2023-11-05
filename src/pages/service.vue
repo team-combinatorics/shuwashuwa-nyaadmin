@@ -174,6 +174,8 @@ const getServiceListAsync = async (q: ServiceQuery) => {
         serviceList.value.sort((a, b) => b.serviceEventId - a.serviceEventId);
         console.log('service list refreshed', serviceList.value);
         loadingBar.finish();
+
+        tablePagination.page = 1;  // set page to 1 when query is changed
     } catch (e: any) {
         handleError(e, message, router);
         loadingBar.error();
