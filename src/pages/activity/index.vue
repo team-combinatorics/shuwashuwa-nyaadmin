@@ -444,7 +444,6 @@ getActivityListAsync().then(() => {
                 :data="activityList"
                 :loading="activityListLoading"
                 :scroll-x="1000"
-                :remote="true"
                 @update-sorter="doSort"
                 :pagination="tablePagination"
                 striped
