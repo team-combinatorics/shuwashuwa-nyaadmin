@@ -19,7 +19,7 @@ import { useMessage, useLoadingBar } from 'naive-ui';
 import { getVolunteerList } from '~/api/user';
 
 import { parseDate, formatDate } from '~/composables/date';
-import { tablePagination } from '~/composables/table-pagination';
+import { useTablePagination } from '~/composables/table-pagination';
 
 import { SearchOutline, CloseOutline, FilterOutline } from '@vicons/ionicons5';
 import { Information as InformationIcon, Edit as EditIcon, ToolKit as ToolKitIcon } from '@vicons/carbon';
@@ -165,6 +165,7 @@ const setDateRange = (val: number[] | null) => {
 const serviceList: Ref<ServiceEvent[]> = ref([]);
 const serviceListLoading = ref(false);
 
+const tablePagination = useTablePagination();
 const getServiceListAsync = async (q: ServiceQuery) => {
     console.log(serviceQuery.value);
     serviceListLoading.value = true;
@@ -174,7 +175,6 @@ const getServiceListAsync = async (q: ServiceQuery) => {
         serviceList.value.sort((a, b) => b.serviceEventId - a.serviceEventId);
         console.log('service list refreshed', serviceList.value);
         loadingBar.finish();
-
         tablePagination.page = 1;  // set page to 1 when query is changed
     } catch (e: any) {
         handleError(e, message, router);

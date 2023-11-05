@@ -7,7 +7,7 @@ import type { User } from '~/models/user';
 import { deleteAdmin, getAdminList, updateAdmin, addAdmin, getVolunteerList, getUserInfo } from '~/api/user';
 
 import { handleError } from '~/composables/error';
-import { tablePagination } from '~/composables/table-pagination'
+import { useTablePagination } from '~/composables/table-pagination'
 
 import { NDataTable, NButton, NIcon, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NPopconfirm, NAutoComplete, NH3 } from 'naive-ui';
 import { useMessage, useLoadingBar } from 'naive-ui';
@@ -35,6 +35,7 @@ const loadingBar = useLoadingBar();
 const adminList: Ref<User[]> = ref([]);
 const adminLoading = ref(false);
 
+const tablePagination = useTablePagination();
 const getAdminListAsync = async () => {
     if (adminLoading.value) return;  /* skip repeated requests */
     adminLoading.value = true;

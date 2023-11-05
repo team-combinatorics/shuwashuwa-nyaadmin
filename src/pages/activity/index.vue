@@ -7,7 +7,7 @@ import type { TimeSlot, Activity, ActivityInfo } from '~/models/activity';
 import type { SortState } from 'naive-ui/lib/data-table/src/interface';
 
 import { deleteActivity, addActivity, updateActivity, getActivityList, getActivityTimeSlots } from '~/api/activity';
-import { tablePagination } from '~/composables/table-pagination';
+import { useTablePagination } from '~/composables/table-pagination';
 
 import { handleError } from '~/composables/error';
 
@@ -50,6 +50,7 @@ const incomingActivityList = computed((): ActivityInfo[] => {
     return activityList.value.filter(activity => parseDate(activity.endTime) > Date.now());
 })
 
+const tablePagination = useTablePagination();
 const getActivityListAsync = async () => {
     if (activityListLoading.value) return;  /* skip repeated requests */
     activityListLoading.value = true;

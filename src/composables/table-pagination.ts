@@ -7,33 +7,37 @@ const useMobileLayout = computed(() => {
     return windowSize.width.value <= 480;
 })
 
-const mobilePagination = reactive({
-    page: 1,
-    pageSize: 40,
-    showSizePicker: false,
-    onChange: (page: number) => {
-        mobilePagination.page = page
-    },
-    onUpdatePageSize: (pageSize: number) => {
-        mobilePagination.pageSize = pageSize
-        mobilePagination.page = 1
-    }
-})
+const useMobilePagination = () => {
+    const _r = reactive({
+        page: 1,
+        pageSize: 40,
+        showSizePicker: false,
+        onChange: (page: number) => {
+            _r.page = page
+        },
+        onUpdatePageSize: (pageSize: number) => {
+            _r.pageSize = pageSize
+            _r.page = 1
+        }
+    })
+    return _r
+}
 
-const desktopPagination = reactive({
-    page: 1,
-    pageSize: 10,
-    showSizePicker: true,
-    pageSizes: [10, 20, 40],
-    onChange: (page: number) => {
-        desktopPagination.page = page
-    },
-    onUpdatePageSize: (pageSize: number) => {
-        desktopPagination.pageSize = pageSize
-        desktopPagination.page = 1
-    }
-})
+const useDesktopPagination = () => {
+    const _r = reactive({
+        page: 1,
+        pageSize: 10,
+        showSizePicker: true,
+        pageSizes: [10, 20, 40],
+        onChange: (page: number) => {
+            _r.page = page
+        },
+        onUpdatePageSize: (pageSize: number) => {
+            _r.pageSize = pageSize
+            _r.page = 1
+        }
+    })
+    return _r
+}
 
-export const tablePagination = computed(() => 
-    useMobileLayout.value ? mobilePagination : desktopPagination
-)
+export const useTablePagination = useMobileLayout.value ? useMobilePagination : useDesktopPagination
