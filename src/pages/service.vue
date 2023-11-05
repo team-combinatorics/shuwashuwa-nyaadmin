@@ -9,7 +9,7 @@ import type { User } from '~/models/user';
 
 import { getActivityList } from '~/api/activity';
 
-import { NForm, NFormItem, NSwitch, NSelect, NDatePicker, NInput, NButton, NDataTable, NIcon, NH3, NText, NCollapseTransition, NDrawer } from 'naive-ui';
+import { NForm, NFormItem, NSwitch, NSelect, NDatePicker, NInput, NButton, NDataTable, NIcon, NH3, NText, NCollapseTransition, NDrawer, DataTableColumns } from 'naive-ui';
 
 import { handleError } from '~/composables/error';
 import { getServiceEventList, getServiceEventDetail } from '~/api/service';
@@ -19,6 +19,7 @@ import { useMessage, useLoadingBar } from 'naive-ui';
 import { getVolunteerList } from '~/api/user';
 
 import { parseDate, formatDate } from '~/composables/date';
+import { tablePagination } from '~/composables/table-pagination';
 
 import { SearchOutline, CloseOutline, FilterOutline } from '@vicons/ionicons5';
 import { Information as InformationIcon, Edit as EditIcon, ToolKit as ToolKitIcon } from '@vicons/carbon';
@@ -90,6 +91,8 @@ const volunteerOptions = computed(() => {
         value: volunteer.volunteerId
     }));
 });
+
+const pageOptions = { pageSize: 10 };
 
 const statusLabels = [
     '编辑中',
@@ -226,7 +229,7 @@ const formRef = ref(null as any);
 
 const tableRef = ref(null as any);
 
-const columns = [
+const columns: DataTableColumns<ServiceEvent> = [
     {
         title: 'ID',
         key: 'serviceEventId',
@@ -429,12 +432,13 @@ setupTask();
         <div class="table-container">
             <n-data-table
                 ref="tableRef"
-                :columns="(columns as any)"
+                :columns="columns"
                 :data="serviceList"
                 :loading="serviceListLoading"
                 :scroll-x="1000"
-                :remote="true"
                 striped
+                :pagination="tablePagination"
+                show-size-picker
             />
         </div>
     </section>

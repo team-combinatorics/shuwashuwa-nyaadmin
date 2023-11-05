@@ -3,10 +3,11 @@ import { useHead } from '@vueuse/head';
 import { useWindowSize } from '@vueuse/core';
 
 import type { Ref } from 'vue';
-import type { TimeSlot, Activity, ActivityInfo, ActivityQuery } from '~/models/activity';
+import type { TimeSlot, Activity, ActivityInfo } from '~/models/activity';
 import type { SortState } from 'naive-ui/lib/data-table/src/interface';
 
 import { deleteActivity, addActivity, updateActivity, getActivityList, getActivityTimeSlots } from '~/api/activity';
+import { tablePagination } from '~/composables/table-pagination';
 
 import { handleError } from '~/composables/error';
 
@@ -445,6 +446,7 @@ getActivityListAsync().then(() => {
                 :scroll-x="1000"
                 :remote="true"
                 @update-sorter="doSort"
+                :pagination="tablePagination"
                 striped
             />
         </div>

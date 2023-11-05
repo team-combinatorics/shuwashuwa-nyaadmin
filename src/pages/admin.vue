@@ -7,6 +7,7 @@ import type { User } from '~/models/user';
 import { deleteAdmin, getAdminList, updateAdmin, addAdmin, getVolunteerList, getUserInfo } from '~/api/user';
 
 import { handleError } from '~/composables/error';
+import { tablePagination } from '~/composables/table-pagination'
 
 import { NDataTable, NButton, NIcon, NDrawer, NDrawerContent, NForm, NFormItem, NInput, NPopconfirm, NAutoComplete, NH3 } from 'naive-ui';
 import { useMessage, useLoadingBar } from 'naive-ui';
@@ -15,6 +16,7 @@ import { Edit } from '@vicons/carbon';
 import { AddOutline, CheckmarkOutline, CloseOutline, PeopleOutline } from '@vicons/ionicons5';
 
 import { Document } from 'flexsearch';
+import { TableColumn } from 'naive-ui/lib/data-table/src/interface';
 
 useHead({
     title: '管理员 | 修哇修哇'
@@ -438,6 +440,7 @@ const formRules = {
             :loading="adminLoading"
             :scroll-x="1000"
             :remote="true"
+            :pagination="tablePagination"
             striped
         />
     </div>
