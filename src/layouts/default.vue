@@ -34,8 +34,8 @@ const prefersDark = usePreferredDark()
 <style>
 
 .default-layout {
-  height: 100%;
-  min-height: 100vh;
+  min-height: max(100%, 100vh);
+  padding-bottom: 1em;
 }
 
 /* really wide screens */
